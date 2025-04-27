@@ -1,0 +1,18 @@
+{
+ :paths ["src/clj"]
+ :deps {
+        org.clojure/clojure { :mvn/version "1.12.0" }
+        org.clojure/tools.cli { :mvn/version "1.1.230"}
+        org.clojure/core.async { :mvn/version "1.7.701" }
+
+        buddy/buddy-core { :mvn/version "1.12.0-430" }
+
+        org.fudo/fudo-clojure {
+                               :git/url "https://github.com/fudoniten/fudo-clojure.git"
+                               :git/sha "2f808254ccb22af797625def12130a6fad735b1b"
+                               }
+        org.fudo/milquetoast {
+                              :git/url "https://github.com/fudoniten/milquetoast.git"
+                              :git/sha "d384e90ce4166006e776d104115f03284fd3f74d"
+                              }}
+ }
