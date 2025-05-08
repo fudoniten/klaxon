@@ -1,0 +1,28 @@
+#+title: Klaxon
+
+* Thesis
+
+Klaxon is a system to alert myself when a major cryptocurrency trade is
+completed.
+
+Given an API key, it will monitor the associated account, and send an alert on
+the requested channel when certain conditions are met.
+
+The default condition will be the completion of a buy or sell order greater than
+a certain magnitude. I should also be alerted to the _partial_ completion of a
+major buy or sell order for which the order is partly but not completely filled
+within a certain timeframe. That is to say: if _at least some_ fill has been
+completed, but the order is not _fully_ filled, send me an alert.
+
+The primary method of alerting will be ntfy.sh. I can also send notifications
+(including for smaller orders, or for shorter timeframes) to other endpoints.
+Maybe leave that for later.
+
+The service should periodically (say, every 1-5 minutes) check the activity for
+the given account. I have to check what events are returned, and what I should
+be checking. Then, simplify. The key things I care about are:
+
+ - Are there any active orders?
+ - Were they filled since I last checked?
+ - Were they _partly_ filled since I last checked, and if so has a critical amount
+   of time passed?

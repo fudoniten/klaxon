@@ -55,9 +55,21 @@
 
 (stest/instrument `sign-message)
 
+(defmacro ->* [& forms]
+  (when (empty? forms)
+    (throw (IllegalArgumentException. "->* requires at least one form")))
+  `(fn [x#]
+     (-> x# ~@forms)))
+
 (s/fdef make-signer
   :args (s/cat :key ::t/bytes)
-  :ret  string?)
+  :ret  (s/fspec :args (s/cat :msg string?)
+                 :ret  ::t/base64-string))
+(defn make-signer [key]
+  (->* (mac/hash {:key key :alg signature-algo})
+       (codecs/bytes->b64)
+       (bytes->string)))
+
 
 ;; Goal: Check the status of current orders, and find any over some threshold.
 ;; If any orders over that threshold are completed, page me.
