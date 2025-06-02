@@ -1,49 +1,82 @@
 (ns klaxon.cli.core
-  (:require [clojure.tools.cli :as cli]
+  (:require [clojure.core.async :refer [>!! <!! chan go-loop alt!]]
+            [clojure.tools.cli :as cli]
             [clojure.set :as set]
-            [clojure.string :as str])
+            [clojure.string :as str]
+
+            [klaxon.client :as client]
+            [klaxon.core :refer [monitor-and-alert]]
+            [klaxon.jwt :as jwt]
+            [klaxon.order-chan :refer [order-chan]]
+
+            [pinger.core :as pinger])
+  (:import java.time.Instant)
   (:gen-class))
 
 (def cli-opts
   [["-v" "--verbose" "provide verbose output."]
    ["-h" "--help" "print this message."]
 
-   ])
+   ["-k" "--key-file KEYFILE" "JSON file containing JWT key data."]
+   ["-p" "--poll-seconds SECONDS" "Frequency with which to poll for activity."
+    :default 60
+    :parse-fn #(Integer/parseInt %)]
 
-(defn- msg-quit [status msg]
+   ["-n" "--ntfy-server SERVER" "ntfy.sh server."
+    :default "ntfy.sh"]
+   ["-t" "--ntfy-topic TOPIC" "ntfy.sh topic to which notifications will be sent."]])
+
+(defn- msg-quit
+  [status msg]
   (println msg)
   (System/exit status))
 
 (defn- usage
   ([summary] (usage summary []))
-  ([summary errs] (->> (concat errors
+  ([summary errs] (->> (concat errs
                                [["usage: klaxon [opts]"
                                  ""
                                  "options:"
                                  summary]])
                        (str/join \newline))))
 
-(defn- parse-opts [args reqs cli-opts]
+(defn- parse-opts
+  [args reqs cli-opts]
   (let [{:keys [options] :as result} (cli/parse-opts args cli-opts)
         missing (set/difference reqs (-> options (keys) (set)))
         missing-errs (map #(format "missing required parameter: %s" (name %))
                           missing)]
     (update result :errors concat missing-errs)))
 
-(defn -main [& args]
-  (let [required-args #{:mqtt-host
-                        :mqtt-port
-                        :mqtt-user
-                        :mqtt-password
-                        :klaxon-topic
-                        }
+(defn -main
+  [& args]
+  (let [required-args #{:key-file :ntfy-topic :poll-seconds}
         {:keys [options _ errors summary]} (parse-opts args required-args cli-opts)]
     (when (:help options) (msg-quit 0 (usage summary)))
     (when (seq errors) (msg-quit 1 (usage summary errors)))
-    (let [{:keys [mqtt-host
-                  mqtt-port
-                  mqtt-user
-                  mqtt-password
-                  klaxon-topic
-                  verbose] options}]
-      (when verbose (println (format "launching klaxon server"))))))
+    (let [{:keys [key-file
+                  ntfy-server
+                  ntfy-topic
+                  poll-seconds
+                  verbose]} options
+          key-data (jwt/load-key-file key-file)]
+      (when verbose (println (format "launching klaxon server")))
+      (let [client        (client/create "api.coinbase.com" key-data)
+            start         (Instant/now)
+            shutdown-chan (chan)
+            orders        (order-chan client :delay poll-seconds :start-time start)
+            pinger        (pinger/open-channel ntfy-server ntfy-topic)
+            {monitor-stop :stop errs :err} (monitor-and-alert pinger orders)]
+        (.addShutdownHook (Runtime/getRuntime)
+                          (Thread. (fn [] (>!! shutdown-chan true))))
+        (go-loop []
+          (let [evt (alt! errs          ([{error :error}] {:type :error :error error})
+                          shutdown-chan ([_] {:type :shutdown}))]
+            (case (:type evt)
+              :error    (do (println (format "ERROR: %s" (:error evt)))
+                            (recur))
+              :shutdown (println "stopping error stream..."))))
+        (<!! shutdown-chan)
+        (println "stopping order monitor...")
+        (>!! monitor-stop true)))
+    (msg-quit :message "stopping klaxon server")))

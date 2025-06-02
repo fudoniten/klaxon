@@ -1,75 +1,134 @@
 (ns klaxon.core
   (:require [clojure.string :as str]
-            [clojure.data.json :as json]
-
-            [buddy.core.codecs :as codecs]
-            [buddy.core.mac :as mac]
-
+            [clojure.core.async :refer [<! >! chan go-loop alt!]]
             [clojure.spec.alpha :as s]
-            [clojure.spec.test.alpha :as stest]
 
-            [klaxon.types :as t])
+            [klaxon.client :as client]
+            [klaxon.order :as order]
+            [klaxon.order-chan :refer [order-chan]]
 
-  (:import java.time.Instant
-           java.nio.charset.Charset
-           java.util.Base64))
+            [pinger.core :as pinger])
 
-(def signature-algo :hmac+sha256)
+  (:import [java.time Duration Instant]))
 
-(defn- current-epoch-timestamp []
-  (.getEpochSecond (Instant/now)))
+(def duration? (partial instance? Duration))
 
-(s/fdef to-path-element
-  :args (s/cat :el any?)
-  :ret  string?)
-(defn- to-path-element [el]
-  (cond (keyword? el) (name el)
-        (uuid? el)    (.toString el)
-        (string? el)  el))
+(s/fdef delayed-fill?
+  :args (s/cat :threshold-age duration? :order ::order/order)
+  :ret  boolean?)
+(defn delayed-fill? [threshold-age order]
+  (and (> (order/age order) threshold-age)
+       (not (order/filled? order))
+       (order/stop-triggered? order)))
 
-(s/fdef build-path
-  :args (s/cat :path-elements (s/* string?))
-  :ret  string?)
-(defn- build-path
-  [& path-elements]
-  (str "/" (str/join "/" (map to-path-element path-elements))))
+(defn positive-decimal? [o]
+  (and (decimal? o) (>= o 0)))
 
-(s/fdef string->bytes
-  :args (s/cat :str string?)
-  :ret  ::t/bytes)
-(defn- string->bytes [str] (.getBytes str))
+(s/fdef over-threshold?
+  :args (s/cat :threshold-value positive-decimal?
+               :order           ::order/order)
+  :ret  boolean?)
+(defn over-threshold? [threshold-value order]
+  (> (order/total-value order) threshold-value))
 
-(s/fdef bytes->string
-  :args (s/cat :bytes ::t/bytes)
-  :ret  string?)
-(defn- bytes->string [bytes]
-  (String. bytes (Charset/forName "UTF-8")))
+(defn summarize-order
+  [o]
+  (str/join "\n"
+            [
+             (format "%s order of %.2f %s @ %.2f"
+                     (-> o order/side)
+                     (-> o order/filled-size)
+                     (-> o order/product-type name)
+                     (-> o order/average-filled-price))
+             "\n"
+             (format "order id: %s" (order/id o))
+             (format "order type: %s" (-> o order/order-type name))
+             (format "created: %s" (order/created o))
+             (format "status: %s" (-> o order/status name))
+             (format "size: %.2f" (order/filled-size o))
+             (format "product: %s" (-> o order/product-type name))
+             (format "value: %.2f" (order/total-value o))
+             (format "average price: %.2f" (order/average-filled-price o))
+             (format "total fee: %.2f" (order/total-fees o))
+             ]))
 
-(s/fdef sign-message
-  :args (s/cat :key ::t/bytes :msg string?)
-  :ret  ::t/base64-string)
-(defn- sign-message [key msg]
-  (-> (mac/hash msg {:key key :alg signature-algo})
-      (codecs/bytes->b64)
-      (bytes->string)))
+(defn summarize-large-fill
+  [o]
+  {:title (format "FILLED: %s $%.2f" (-> o order/side name) (order/total-value o))
+   :body  (str "ORDER SUCCESSFULLY FILLED:\n\n"
+               (summarize-order o))
+   :type  :alert})
 
-(stest/instrument `sign-message)
+(defn summarize-small-fill
+  [o]
+  {:title (format "FILLED: %s $%.2f" (-> o order/side name) (order/total-value o))
+   :body  (str "ORDER SUCCESSFULLY FILLED:\n\n"
+               (summarize-order o))
+   :type  :notify})
 
-(defmacro ->* [& forms]
-  (when (empty? forms)
-    (throw (IllegalArgumentException. "->* requires at least one form")))
-  `(fn [x#]
-     (-> x# ~@forms)))
+(defn summarize-delayed-fill
+  [o]
+  {:title (format "FAILED TO FILL: %s of %.2f failed after %s minutes! %.2f% filled."
+                  (-> o (order/side) name)
+                  (-> o (order/total-value))
+                  (-> o (order/age) (.toMinutes))
+                  (-> o (order/completion-percentage)))
+   :body   (str "ORDER FAILED TO FILL:\n\n"
+                (summarize-order o))
+   :type   :alert})
 
-(s/fdef make-signer
-  :args (s/cat :key ::t/bytes)
-  :ret  (s/fspec :args (s/cat :msg string?)
-                 :ret  ::t/base64-string))
-(defn make-signer [key]
-  (->* (mac/hash {:key key :alg signature-algo})
-       (codecs/bytes->b64)
-       (bytes->string)))
+(defn monitor-orders
+  [orders
+   & {:keys [threshold-value
+             threshold-age
+             notify
+             stop
+             err]
+      :or   {threshold-value (bigdec 0)
+             threshold-age   (Duration/ofMinutes 20)
+             notify          (chan 10)
+             stop            (chan)
+             err             (chan 10)}}]
+  (go-loop []
+    (let [event (alt! (:out orders) ([order] {:type :order :order order})
+                      (:err orders) ([err]   {:type :err :err err})
+                      stop          ([_]     {:type :stop}))]
+      (case (:type event)
+        :stop  (do (println (format "stopping order monitor at %s" (Instant/now)))
+                   (>! (:stop orders) :stop))
+        :err   (let [{error :error} event]
+                 (println (format "error from order stream: %s" error))
+                 (>! err error)
+                 (recur))
+        :order (let [{order :order} event]
+                 (if (over-threshold? threshold-value order)
+                   (if (order/filled? order)
+                     (>! notify (summarize-large-fill order))
+                     (when (delayed-fill? threshold-age order)
+                       (>! notify (summarize-delayed-fill order))))
+                   (>! notify (summarize-small-fill order)))
+                 (recur)))))
+  {:out notify :stop stop :err err})
 
-
-;; Goal: Check the status of current orders, and find any over some threshold.
-;; If any orders over that threshold are completed, page me.
+(defn monitor-and-alert
+  [pinger notifications
+   & {:keys [stop err]
+      :or   {stop (chan)
+             err  (chan 10)}}]
+  (go-loop []
+    (let [event (alt! (:out notifications) ([note]            {:type :notify :note note})
+                      (:err notifications) ([{error :error}]  {:type :error  :error error})
+                      stop                 ([_]               {:type :stop}))]
+      (case (:type event)
+        :stop   (do (println (format "stopping monitor-and-alert at %s" (Instant/now)))
+                    (>! (:stop notifications) 1))
+        :err    (let [{error :error} event]
+                  (println (format "error from notify stream: %s" error))
+                  (>! err error)
+                  (recur))
+        :notify (let [{{title :title body :body type :type} :note} event]
+                  (case type
+                    :notify (pinger/send!  pinger title body)
+                    :alert  (pinger/alert! pinger title body))
+                  (recur)))))
+  {:stop stop :err err})

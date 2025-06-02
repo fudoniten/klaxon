@@ -16,24 +16,31 @@
       url = "github:fudoniten/fudo-clojure";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    pinger = {
+      url = "github:fudoniten/pinger";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, utils, helpers, fudo-clojure, milquetoast, ... }:
+  outputs =
+    { self, nixpkgs, utils, helpers, fudo-clojure, milquetoast, pinger, ... }:
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
         fudoClojureLib = fudo-clojure.packages."${system}".fudo-clojure;
         milquetoastLib = milquetoast.packages."${system}".milquetoast;
+        pingerLib = pinger.packages."${system}".pinger;
         cljLibs = {
           "org.fudo/fudo-clojure" = fudoClojureLib;
           "org.fudo/milquetoast" = milquetoastLib;
+          "org.fudo/pinger" = pingerLib;
         };
       in {
         packages = rec {
           default = klaxonServer;
           klaxonServer = helpers.packages."${system}".mkClojureBin {
             name = "org.fudo/klaxon-server";
-            primaryNamespace = "klaxon.cli";
+            primaryNamespace = "klaxon.cli.core";
             src = ./.;
             inherit cljLibs;
           };

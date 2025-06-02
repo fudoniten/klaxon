@@ -3,16 +3,27 @@
  :deps {
         org.clojure/clojure { :mvn/version "1.12.0" }
         org.clojure/tools.cli { :mvn/version "1.1.230"}
-        org.clojure/core.async { :mvn/version "1.7.701" }
+        org.clojure/core.async { :mvn/version "1.8.741" }
 
         buddy/buddy-core { :mvn/version "1.12.0-430" }
 
+        com.nimbusds/nimbus-jose-jwt { :mvn/version "9.39" }
+        org.bouncycastle/bcpkix-jdk18on { :mvn/version "1.78" }
+        camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
+
         org.fudo/fudo-clojure {
                                :git/url "https://github.com/fudoniten/fudo-clojure.git"
-                               :git/sha "2f808254ccb22af797625def12130a6fad735b1b"
+                               :git/sha "56739be3b0968e4ddaea45c26112744d6d59640d"
                                }
+
         org.fudo/milquetoast {
                               :git/url "https://github.com/fudoniten/milquetoast.git"
                               :git/sha "d384e90ce4166006e776d104115f03284fd3f74d"
-                              }}
+                              }
+
+        org.fudo/pinger {
+                         :git/url "https://github.com/fudoniten/pinger.git"
+                         :git/sha "342b4095cbb8fa83af63ff951e55c321b409c23f"
+                         }
+        }
  }

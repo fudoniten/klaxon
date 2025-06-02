@@ -1,0 +1,41 @@
+(ns klaxon.client
+  (:require [clojure.spec.alpha :as s]
+            [clojure.string :as str]
+
+            [klaxon.jwt :as jwt]
+
+            [fudo-clojure.http.client :as http]
+            [fudo-clojure.http.request :as req]))
+
+(s/def ::hostname string?)
+
+(s/def ::client
+  (s/keys :req [::hostname ::http-client]))
+
+(s/fdef create
+  :args (s/cat :opts (s/keys* :req-un [::hostname ::jwt/key-data]))
+  :ret  ::client)
+(defn create
+  [& {:keys [hostname key-data]}]
+  (let [authenticator (fn [req] (jwt/authenticate-request! key-data req))
+        http-client (http/json-client :authenticator authenticator)]
+    {::hostname hostname ::http-client http-client}))
+
+(defn- to-path-elem [el]
+  (cond (keyword? el) (name el)
+        (uuid? el)    (.toString el)
+        (string? el)  el
+        :else         (throw (ex-info (format "invalid path element: %s" el)
+                                      {}))))
+
+(defn build-path [& els]
+  (str "/" (str/join "/" (map to-path-elem els))))
+
+(s/fdef get!
+  :args (s/cat :client ::client :req ::req/request)
+  :ret  any?)
+(defn get! [{:keys [::http-client ::hostname]} req]
+  (http/get! http-client (-> req (req/with-host hostname))))
+
+(require '[clojure.spec.test.alpha :as stest])
+(stest/instrument 'get!)
