@@ -1,5 +1,5 @@
 (ns klaxon.common
-  (:require [clojure.core.async :refer [<! >! go-loop timeout chan alt!]]
+  (:require [clojure.core.async :refer [>! go-loop timeout chan alt!]]
             [clojure.set :as set]
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
@@ -149,17 +149,6 @@
        (let [~error-arg ~result]
          ~@error-body))))
 
-#_(defmacro with-results [bindings & body]
-  (letfn [(fold-forms [bindings inner]
-            (if (empty? bindings)
-              `(do ~@body)
-              (let [[var val] (first bindings)]
-                `(bind ~val (fn [~var] ~(fold-forms (rest bindings) body))))))]
-    (when (not (even? (count bindings)))
-      (throw (ex-info "let-result binding requires an even number of forms" {})))
-    (let [bindings (partition 2 bindings)]
-      (fold-forms (reverse bindings) body))))
-
 (s/fdef ensure-keys
   :args (s/cat :ks (s/coll-of keyword?) :m (s/map-of keyword? any?))
   :ret  map?)
@@ -181,7 +170,7 @@
 (defn convert-key [m k new-k f]
   (assoc m new-k (f (get m k))))
 
-(defn pthru [o] (clojure.pprint/pprint o) o)
+(defn pthru [o] (pprint o) o)
 
 (defn convert-keys [m & triples]
   (when (not= (mod (count triples) 3) 0)
@@ -191,14 +180,16 @@
             m
             conversions)))
 
-(defn heartbeat-chan [delay-secs]
+(defn heartbeat-chan
+  [delay-secs]
   (let [heartbeat (chan)
         delay     (atom delay-secs)
         stop      (chan)]
-    (go-loop [update (alt! (timeout (* @delay 1000)) ([_] {:type :timeout :content (Instant/now)})
-                           stop                      ([_] {:type :stop}))]
-      (when (-> update :type (= :timeout))
-        (>! heartbeat {:timestamp (-> update :content)})
-        (recur (alt! (timeout (* @delay 1000)) ([_] {:type :timeout :content (Instant/now)})
-                     stop                      ([_] {:type :stop})))))
+    (go-loop []
+      (let [update (alt! (timeout (* @delay 1000)) ([_] {:type :timeout :content (Instant/now)})
+                         stop                      ([_] {:type :stop}))]
+        (case (:type update)
+          :timeout (do (>! heartbeat {:timestamp (:content update)})
+                       (recur))
+          :stop    (println "stopping heartbeat..."))))
     {:heartbeat heartbeat :delay delay :stop stop}))

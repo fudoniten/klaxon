@@ -70,8 +70,6 @@
         (throw (ex-info "unable to find :key-name and :key-data, badly formatted key-file" {})))
       (load-key key-name key-data))))
 
-(defn pthru [o] (clojure.pprint/pprint o) o)
-
 (s/fdef get-jwt!
   :args (s/cat :key-data ::key-data
                :hostname string?
@@ -87,7 +85,7 @@
                    (.claim "nbf" now)
                    (.claim "exp" (+ now 120))
                    (.claim "sub" key-name)
-                   (.claim "uri" (pthru uri))
+                   (.claim "uri" uri)
                    (.build))
         header (-> (JWSHeader$Builder. JWSAlgorithm/ES256)
                    (.type JOSEObjectType/JWT)
