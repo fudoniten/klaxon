@@ -30,7 +30,7 @@
         };
       in {
         packages = rec {
-          default = klaxonServer;
+          default = klaxon;
           klaxon = helpers.packages."${system}".mkClojureBin {
             name = "org.fudo/klaxon-server";
             primaryNamespace = "klaxon.cli.core";
