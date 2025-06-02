@@ -16,11 +16,6 @@
                                :git/sha "0a445a49e14c62a2b0b1ca497a1e5264fc0f8b2b"
                                }
 
-        org.fudo/milquetoast {
-                              :git/url "https://github.com/fudoniten/milquetoast.git"
-                              :git/sha "8d29796f18c4102c1cff8e84bd64166bc356b355"
-                              }
-
         org.fudo/pinger {
                          :git/url "https://github.com/fudoniten/pinger.git"
                          :git/sha "489b4a2cab3ebc283fb9dfd20bd209df016b23fc"
