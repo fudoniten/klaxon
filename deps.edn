@@ -13,17 +13,17 @@
 
         org.fudo/fudo-clojure {
                                :git/url "https://github.com/fudoniten/fudo-clojure.git"
-                               :git/sha "56739be3b0968e4ddaea45c26112744d6d59640d"
+                               :git/sha "0a445a49e14c62a2b0b1ca497a1e5264fc0f8b2b"
                                }
 
         org.fudo/milquetoast {
                               :git/url "https://github.com/fudoniten/milquetoast.git"
-                              :git/sha "d384e90ce4166006e776d104115f03284fd3f74d"
+                              :git/sha "8d29796f18c4102c1cff8e84bd64166bc356b355"
                               }
 
         org.fudo/pinger {
                          :git/url "https://github.com/fudoniten/pinger.git"
-                         :git/sha "342b4095cbb8fa83af63ff951e55c321b409c23f"
+                         :git/sha "489b4a2cab3ebc283fb9dfd20bd209df016b23fc"
                          }
         }
  }
