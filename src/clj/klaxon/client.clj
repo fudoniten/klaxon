@@ -16,7 +16,9 @@
   :args (s/cat :opts (s/keys* :req-un [::hostname ::jwt/key-data]))
   :ret  ::client)
 (defn create
-  [& {:keys [hostname key-data]}]
+  [& {:keys [::hostname ::jwt/key-data]}]
+  (assert (some? hostname) "hostname cannot be nil")
+  (assert (some? key-data) "key-data cannot be nil")
   (let [authenticator (fn [req] (jwt/authenticate-request! key-data req))
         http-client (http/json-client :authenticator authenticator)]
     {::hostname hostname ::http-client http-client}))

@@ -4,6 +4,7 @@
             [clojure.set :as set]
             [clojure.string :as str]
 
+            [klaxon.common :as common]
             [klaxon.client :as client]
             [klaxon.core :refer [monitor-and-alert]]
             [klaxon.jwt :as jwt]
@@ -33,12 +34,12 @@
 
 (defn- usage
   ([summary] (usage summary []))
-  ([summary errs] (->> (concat errs
-                               [["usage: klaxon [opts]"
-                                 ""
-                                 "options:"
-                                 summary]])
-                       (str/join \newline))))
+  ([summary errs] (str/join \newline
+                            (concat errs
+                                    ["usage: klaxon [opts]"
+                                     ""
+                                     "options:"
+                                     summary]))))
 
 (defn- parse-opts
   [args reqs cli-opts]
@@ -61,7 +62,8 @@
                   verbose]} options
           key-data (jwt/load-key-file key-file)]
       (when verbose (println (format "launching klaxon server")))
-      (let [client        (client/create "api.coinbase.com" key-data)
+      (let [client        (client/create ::client/hostname "api.coinbase.com"
+                                         ::jwt/key-data key-data)
             start         (Instant/now)
             shutdown-chan (chan)
             orders        (order-chan client :delay poll-seconds :start-time start)
