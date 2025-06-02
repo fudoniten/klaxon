@@ -4,12 +4,12 @@ packages:
 
 with lib;
 let
-  cfg = config.fudo.klaxon;
+  cfg = config.fudo.services.klaxon;
 
   inherit (packages."${pkgs.system}") klaxon;
 
 in {
-  options.fudo.klaxon = with types; {
+  options.fudo.services.klaxon = with types; {
     enable = mkEnableOption "Enable Klaxon server.";
 
     keyFile = mkOption {
