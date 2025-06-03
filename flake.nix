@@ -32,7 +32,7 @@
         packages = rec {
           default = klaxon;
           klaxon = helpers.packages."${system}".mkClojureBin {
-            name = "org.fudo/klaxon-server";
+            name = "org.fudo/klaxon";
             primaryNamespace = "klaxon.cli.core";
             src = ./.;
             inherit cljLibs;
