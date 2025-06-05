@@ -8,6 +8,7 @@
             [klaxon.common :as common]
             [klaxon.client :as client]
             [klaxon.core :refer [monitor-and-alert]]
+            [klaxon.config :as config]
             [klaxon.jwt :as jwt]
             [klaxon.order-chan :refer [order-chan]]
 
@@ -21,11 +22,11 @@
 
    ["-k" "--key-file KEYFILE" "JSON file containing JWT key data."]
    ["-p" "--poll-seconds SECONDS" "Frequency with which to poll for activity."
-    :default 60
+    :default (config/get-config :poll-seconds)
     :parse-fn #(Integer/parseInt %)]
 
    ["-n" "--ntfy-server SERVER" "ntfy.sh server."
-    :default "ntfy.sh"]
+    :default (config/get-config :ntfy-server)]
    ["-t" "--ntfy-topic TOPIC" "ntfy.sh topic to which notifications will be sent."]])
 
 (defn- msg-quit
