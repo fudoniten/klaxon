@@ -9,7 +9,6 @@
             [klaxon.client :as client]
             [klaxon.core :refer [monitor-and-alert]]
             [klaxon.config :as config]
-            [klaxon.config :as config]
             [klaxon.jwt :as jwt]
             [klaxon.order-chan :refer [order-chan]]
             [klaxon.logging :as logging]

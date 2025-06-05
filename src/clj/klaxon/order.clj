@@ -3,7 +3,7 @@
   (:require [clojure.spec.alpha :as s]
             [clojure.string :as str]
 
-            [klaxon.common :as common :refer [*-> convert-keys]])
+            [klaxon.common :refer [*-> convert-keys]])
   (:import [java.time Duration Instant]))
 
 (s/def ::order (s/keys :req [::id ::filled-size ::filled-value ::fee ::completion-percentage ::product-id ::last-fill-time ::created-time ::average-filled-price ::settled? ::total-value ::total-fees ::product-type ::status ::side ::user-id ::order-type]))

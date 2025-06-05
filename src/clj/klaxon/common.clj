@@ -5,9 +5,7 @@
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [clojure.pprint :refer [pprint]])
-            [klaxon.logging :as logging]
-  (:import java.math.RoundingMode
-           [java.time Duration Instant]))
+            [klaxon.logging :as logging])
 
 (def logger (logging/print-logger))
 
@@ -138,7 +136,6 @@
 (defn convert-key [m k new-k f]
   (assoc m new-k (f (get m k))))
 
-(defn pthru [o] (pprint o) o)
 
 (defn convert-keys [m & triples]
   (when (not= (mod (count triples) 3) 0)

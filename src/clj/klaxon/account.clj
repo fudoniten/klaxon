@@ -26,9 +26,6 @@
 
 (s/def ::acct account?)
 
-(s/fdef currency
-  :args (s/cat :acct ::acct)
-  :ret  ::common/currency)
 
 (s/fdef balance
   :args (s/cat :acct ::acct)
