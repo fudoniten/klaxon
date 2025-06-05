@@ -4,8 +4,7 @@
             [clojure.set :as set]
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
-            [clojure.pprint :refer [pprint]]
-            [klaxon.utils :as utils]
+            [clojure.pprint :refer [pprint]])
             [klaxon.logging :as logging])
   (:import java.math.RoundingMode
            [java.time Duration Instant]))
