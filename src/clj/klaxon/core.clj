@@ -97,7 +97,6 @@
              notify          (chan 10)
              stop            (chan)
              err             (chan 10)}}]
-  (let [logger (logging/print-logger)]
     (let [event (alt! (:out orders) ([order] {:type :order :order order})
                       (:err orders) ([err]   {:type :err :err err})
                       stop          ([_]     {:type :stop}))]

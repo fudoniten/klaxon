@@ -33,7 +33,7 @@
 
 (defn- msg-quit
   [status msg]
-  (println msg)
+  (logging/info! logger msg)
   (System/exit status))
 
 (defn- usage
