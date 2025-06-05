@@ -7,6 +7,7 @@
             [klaxon.client :as client]
             [klaxon.order :as order]
             [klaxon.order-chan :refer [order-chan]]
+            [klaxon.config :as config]
 
             [pinger.core :as pinger])
 
@@ -92,7 +93,7 @@
              stop
              err]
       :or   {threshold-value (bigdec 0)
-             threshold-age   (Duration/ofMinutes 20)
+             threshold-age   (Duration/ofMinutes (config/get-config :threshold-age-minutes))
              notify          (chan 10)
              stop            (chan)
              err             (chan 10)}}]

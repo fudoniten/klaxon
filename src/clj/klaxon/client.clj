@@ -8,7 +8,7 @@
             [fudo-clojure.http.client :as http]
             [fudo-clojure.http.request :as req]))
 
-(s/def ::hostname string?)
+(s/def ::hostname (s/and string? #(= % (config/get-config :hostname))))
 
 (s/def ::client
   (s/keys :req [::hostname ::http-client]))

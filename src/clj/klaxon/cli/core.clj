@@ -9,6 +9,7 @@
             [klaxon.client :as client]
             [klaxon.core :refer [monitor-and-alert]]
             [klaxon.config :as config]
+            [klaxon.config :as config]
             [klaxon.jwt :as jwt]
             [klaxon.order-chan :refer [order-chan]]
 
@@ -20,14 +21,14 @@
   [["-v" "--verbose" "provide verbose output."]
    ["-h" "--help" "print this message."]
 
-   ["-k" "--key-file KEYFILE" "JSON file containing JWT key data."]
+   ["-k" "--key-file KEYFILE" (str "JSON file containing JWT key data. Default: " (config/get-config :key-file))]
    ["-p" "--poll-seconds SECONDS" "Frequency with which to poll for activity."
     :default (config/get-config :poll-seconds)
     :parse-fn #(Integer/parseInt %)]
 
    ["-n" "--ntfy-server SERVER" "ntfy.sh server."
     :default (config/get-config :ntfy-server)]
-   ["-t" "--ntfy-topic TOPIC" "ntfy.sh topic to which notifications will be sent."]])
+   ["-t" "--ntfy-topic TOPIC" (str "ntfy.sh topic to which notifications will be sent. Default: " (config/get-config :ntfy-topic))]])
 
 (defn- msg-quit
   [status msg]
