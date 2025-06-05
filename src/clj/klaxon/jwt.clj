@@ -31,10 +31,10 @@
 
 (defn current-timestamp [] (.getEpochSecond (Instant/now)))
 
-(s/fdef load-ec-private-key
+(s/fdef -load-ec-private-key
   :args (s/cat :pem-str string?)
   :ret  ec-private-key?)
-(defn- load-ec-private-key [^String pem-str]
+(defn- -load-ec-private-key [^String pem-str]
   (Security/addProvider (BouncyCastleProvider.))
   (with-open [reader (PEMParser. (StringReader. pem-str))]
     (let [obj (.readObject reader)
@@ -80,7 +80,7 @@
                :method   ::req/http-method
                :url      string?)
   :ret  string?)
-(defn get-jwt!
+(defn generate-jwt!
   [{key-name ::key-name key ::key} method hostname path]
   (let [now (current-timestamp)
         uri (format "%s %s%s" (name method) hostname path)
@@ -109,6 +109,6 @@
   (let [method (req/get-http-method req)
         hostname (req/get-host req)
         path (req/get-base-path req)
-        jwt (get-jwt! key method hostname path)]
+        jwt (generate-jwt! key method hostname path)]
     (req/with-header req "Authorization"
       (format "Bearer %s" jwt))))
