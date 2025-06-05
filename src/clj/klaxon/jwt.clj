@@ -56,7 +56,7 @@
   :ret  ::key-data)
 (defn load-key [key-name key]
   {::key-name key-name
-   ::key      (load-ec-private-key key)})
+   ::key      (-load-ec-private-key key)})
 
 (s/fdef load-key-file
   :args (s/cat :filename string?)
