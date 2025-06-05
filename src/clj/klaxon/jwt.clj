@@ -1,4 +1,5 @@
 (ns klaxon.jwt
+  ;; This namespace handles JWT creation and management.
   (:require [clojure.spec.alpha :as s]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
@@ -59,6 +60,7 @@
   :args (s/cat :filename string?)
   :ret  ::key-data)
 (defn load-key-file
+  ;; Loads a private key from a file for JWT signing.
   [filename]
   (when (not (.exists (io/file filename)))
     (throw (ex-info (format "key file does not exist: %s" filename)

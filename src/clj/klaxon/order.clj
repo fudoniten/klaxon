@@ -1,4 +1,5 @@
 (ns klaxon.order
+  ;; This namespace defines the structure and behavior of orders.
   (:require [clojure.spec.alpha :as s]
             [clojure.string :as str]
 
@@ -8,6 +9,7 @@
   (:import [java.time Duration Instant]))
 
 (defn- fn-order-to [type]
+  ;; Helper function to define a spec for order-related functions.
   (s/fspec :args (s/cat :order ::order)
            :ret  type))
 
@@ -45,6 +47,7 @@
 (s/def ::order-type #{:unknown-trigger-status :invalid-order-type :stop-pending :stop-triggered})
 
 (defn stop-triggered?
+  ;; Checks if an order has been stop-triggered.
   [o]
   (-> o ::order-type (= :stop-triggered)))
 
@@ -62,6 +65,7 @@
 (def completion-percentage ::completion-percentage)
 
 (defn instantiate-order
+  ;; Converts raw order data into a structured order map.
   [order]
   (let [keywordize (*-> str/lower-case keyword)
         bigdec-or-zero (fn [s] (if (= s "") 0 (bigdec s)))]
@@ -104,7 +108,9 @@
          ::user-id
          ::order-type]))
 
-(defn order? [o] (s/valid? ::order o))
+(defn order? [o]
+  ;; Validates if the given object is a valid order.
+  (s/valid? ::order o))
 
 (defn sale? [o] (= (::side o) :sell))
 (defn buy? [o] (= (::side o) :buy))

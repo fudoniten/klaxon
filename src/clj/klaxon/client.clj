@@ -1,4 +1,5 @@
 (ns klaxon.client
+  ;; This namespace handles the creation and management of HTTP clients.
   (:require [clojure.spec.alpha :as s]
             [clojure.string :as str]
 
@@ -16,6 +17,7 @@
   :args (s/cat :opts (s/keys* :req-un [::hostname ::jwt/key-data]))
   :ret  ::client)
 (defn create
+  ;; Creates a new HTTP client with authentication.
   [& {:keys [::hostname ::jwt/key-data]}]
   (assert (some? hostname) "hostname cannot be nil")
   (assert (some? key-data) "key-data cannot be nil")
@@ -31,6 +33,7 @@
                                       {}))))
 
 (defn build-path [& els]
+  ;; Constructs a URL path from given elements.
   (str "/" (str/join "/" (map to-path-elem els))))
 
 (s/fdef get!

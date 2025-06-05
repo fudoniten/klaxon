@@ -1,4 +1,5 @@
 (ns klaxon.order-chan
+  ;; This namespace manages asynchronous order channels for processing.
   (:require [clojure.core.async :refer [>! chan go-loop alt!]]
             [clojure.spec.alpha :as s]
 
@@ -11,6 +12,7 @@
   (:import java.time.Instant))
 
 (defn order-chan
+  ;; Creates a channel for streaming order data with periodic polling.
   [client &
    {:keys [delay start-time out err stop]
     :or   {delay      60

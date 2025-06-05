@@ -1,4 +1,5 @@
 (ns klaxon.types
+  ;; This namespace defines custom types and specifications.
   (:require [clojure.spec.alpha :as s]))
 
 (s/def ::bytes (fn [x] (instance? (Class/forName "[B") x)))

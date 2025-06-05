@@ -1,4 +1,5 @@
 (ns klaxon.coinbase-api
+  ;; This namespace interfaces with the Coinbase API for order data.
   (:require [clojure.string :as str]
 
             [klaxon.common :refer [->* convert-key]]
@@ -44,6 +45,7 @@
 (def failure? result/failure?)
 
 (defn get-orders!
+  ;; Fetches historical order data from the Coinbase API.
   ([client] (get-orders! client {}))
   ([client query]
    (let [result (client/get! client

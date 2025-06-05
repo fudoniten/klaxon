@@ -1,4 +1,5 @@
 (ns klaxon.common
+  ;; This namespace contains common utilities and helper functions.
   (:require [clojure.core.async :refer [>! go-loop timeout chan alt!]]
             [clojure.set :as set]
             [clojure.spec.alpha :as s]
@@ -19,6 +20,7 @@
 (s/def ::duration (partial instance? Duration))
 
 (defn round-to-dollar [n]
+  ;; Rounds a number to the nearest dollar.
   (.setScale (bigdec n) 0 RoundingMode/HALF_EVEN))
 
 (defn round-to-cent [n]
@@ -60,6 +62,7 @@
   (String. bs (java.nio.charset.Charset/forName "UTF-8")))
 
 (defn base64-encode [to-encode]
+  ;; Encodes a byte array to a Base64 string.
   (.encode (java.util.Base64/getEncoder)
            to-encode))
 

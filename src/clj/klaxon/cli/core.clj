@@ -1,4 +1,5 @@
 (ns klaxon.cli.core
+  ;; This namespace defines the command-line interface for the Klaxon application.
   (:require [clojure.core.async :refer [>!! <!! chan go-loop alt!]]
             [clojure.tools.cli :as cli]
             [clojure.set :as set]
@@ -50,6 +51,7 @@
     (update result :errors concat missing-errs)))
 
 (defn -main
+  ;; Entry point for the Klaxon CLI application.
   [& args]
   (let [required-args #{:key-file :ntfy-topic :poll-seconds}
         {:keys [options _ errors summary]} (parse-opts args required-args cli-opts)]

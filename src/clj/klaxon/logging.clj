@@ -1,4 +1,5 @@
 (ns klaxon.logging
+  ;; This namespace defines logging protocols and implementations.
   (:require [clojure.spec.alpha :as s]))
 
 (defprotocol Logger
@@ -18,6 +19,7 @@
 (s/def ::logger logger?)
 
 (defn dummy-logger []
+  ;; A no-op logger implementation for testing or disabling logging.
   (reify Logger
     (debug!  [_ _] nil)
     (warn!   [_ _] nil)

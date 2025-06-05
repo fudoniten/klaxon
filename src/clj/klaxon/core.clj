@@ -57,6 +57,7 @@
              ]))
 
 (defn summarize-large-fill
+  ;; Summarizes a large order fill for alert notifications.
   [o]
   {:title (format "FILLED: %s $%.2f" (-> o order/side name) (order/total-value o))
    :body  (str "ORDER SUCCESSFULLY FILLED:\n\n"
@@ -82,6 +83,7 @@
    :type   :alert})
 
 (defn monitor-orders
+  "Monitors orders for specific conditions and sends notifications based on thresholds."
   "Monitors orders for specific conditions and sends notifications based on thresholds."
   [orders
    & {:keys [threshold-value

@@ -1,4 +1,5 @@
 (ns klaxon.account
+  ;; This namespace defines account-related specifications and protocols.
   (:require [clojure.spec.alpha :as s]
             [klaxon.common :as common]))
 
@@ -18,6 +19,7 @@
   (= curr (currency acct)))
 
 (defn account-balance [accts curr]
+  ;; Retrieves the balance for a specific currency account.
   (balance (get accts curr)))
 
 (s/def ::acct account?)
