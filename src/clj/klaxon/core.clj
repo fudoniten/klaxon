@@ -7,7 +7,6 @@
             [klaxon.client :as client]
             [klaxon.order :as order]
             [klaxon.order-chan :refer [order-chan]]
-            [klaxon.logging :as logging]
             [klaxon.config :as config :refer [logger]]
 
             [pinger.core :as pinger])
