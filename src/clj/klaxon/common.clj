@@ -5,6 +5,7 @@
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [clojure.pprint :refer [pprint]]
+            [klaxon.utils :as utils]
             [klaxon.logging :as logging])
   (:import java.math.RoundingMode
            [java.time Duration Instant]))
@@ -24,12 +25,6 @@
 
 (s/def ::heartbeat (s/keys :req [::timestamp]))
 
-(defn round-to-dollar [n]
-  ;; Rounds a number to the nearest dollar.
-  (.setScale (bigdec n) 0 RoundingMode/HALF_EVEN))
-
-(defn round-to-cent [n]
-  (.setScale (bigdec n) 2 RoundingMode/HALF_EVEN))
 
 (s/def ::currency keyword?)
 
@@ -47,37 +42,6 @@
   (let [init (gensym)]
     `(fn [~init] (-> ~init ~@fs))))
 
-(defn current-epoch-timestamp []
-  (.getEpochSecond (Instant/now)))
-
-(defn current-timestamp []
-  (Instant/now))
-
-(defn instant-to-epoch-timestamp [instant]
-  (.getEpochSecond instant))
-
-(defn parse-epoch-timestamp [epoch-second]
-  (Instant/ofEpochSecond epoch-second))
-
-(defn parse-timestamp [timestamp]
-  (Instant/parse timestamp))
-
-(defn string->bytes [s] (.getBytes s))
-(defn bytes->string [bs]
-  (String. bs (java.nio.charset.Charset/forName "UTF-8")))
-
-(defn base64-encode [to-encode]
-  ;; Encodes a byte array to a Base64 string.
-  (.encode (java.util.Base64/getEncoder)
-           to-encode))
-
-(defn base64-encode-string [to-encode]
-  (.encodeToString (java.util.Base64/getEncoder)
-           to-encode))
-
-(defn base64-decode [to-decode]
-  (.decode (java.util.Base64/getDecoder)
-           to-decode))
 (s/fdef base64-decode
   :args (s/cat :to-decode bytes?)
   :ret  bytes?)
