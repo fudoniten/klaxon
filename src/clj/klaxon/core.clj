@@ -1,4 +1,5 @@
 (ns klaxon.core
+  ;; Core namespace for monitoring and alerting on order statuses.
   (:require [clojure.string :as str]
             [clojure.core.async :refer [<! >! chan go-loop alt!]]
             [clojure.spec.alpha :as s]
@@ -17,6 +18,7 @@
   :args (s/cat :threshold-age duration? :order ::order/order)
   :ret  boolean?)
 (defn delayed-fill? [threshold-age order]
+  "Checks if an order has been triggered but not filled within a threshold age."
   (and (> (order/age order) threshold-age)
        (not (order/filled? order))
        (order/stop-triggered? order)))
@@ -29,9 +31,11 @@
                :order           ::order/order)
   :ret  boolean?)
 (defn over-threshold? [threshold-value order]
+  "Determines if an order's total value exceeds a specified threshold."
   (> (order/total-value order) threshold-value))
 
 (defn summarize-order
+  "Generates a summary string for an order, detailing its key attributes."
   [o]
   (str/join "\n"
             [
@@ -78,6 +82,7 @@
    :type   :alert})
 
 (defn monitor-orders
+  "Monitors orders for specific conditions and sends notifications based on thresholds."
   [orders
    & {:keys [threshold-value
              threshold-age
@@ -111,6 +116,7 @@
   {:out notify :stop stop :err err})
 
 (defn monitor-and-alert
+  "Handles notifications and alerts for order events, using the pinger module."
   [pinger notifications
    & {:keys [stop err]
       :or   {stop (chan)
