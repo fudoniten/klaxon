@@ -6,6 +6,7 @@
             [klaxon.client :as client]
             [klaxon.coinbase-api :as api]
             [klaxon.common :as common]
+            [klaxon.logging :as logging]
 
             [fudo-clojure.result :as result])
 
@@ -21,7 +22,8 @@
            err        (chan)
            stop       (chan)}}]
   (let [{heartbeat :heartbeat hb-stop :stop} (common/heartbeat-chan delay)]
-    (go-loop [event (alt! heartbeat ([{timestamp :timestamp}] {:type :heartbeat :timestamp timestamp})
+    (let [logger (logging/print-logger)]
+      (go-loop [event (alt! heartbeat ([{timestamp :timestamp}] {:type :heartbeat :timestamp timestamp})
                           stop      ([_] {:type :stop}))
               start start-time]
       (if (= :heartbeat (:type event))
@@ -32,11 +34,12 @@
                                      (Instant/now)
                                      (api/error-message orders))
                              {:error orders}))
+            (logging/error! logger (format "Failed to connect to Coinbase API: %s" (api/error-message orders)))
             (doseq [order (result/unwrap orders)]
               (>! out order)))
           (recur (alt! heartbeat ([{timestamp :timestamp}] {:type :heartbeat :timestamp timestamp})
                        stop      ([_] {:type :stop}))
                  end))
-        (do (println (format "stopping: %s" (:type event)))
+        (do (logging/info! logger (format "stopping: %s" (:type event)))
             (>! hb-stop 1)))))
   {:out out :err err :stop stop})

@@ -7,6 +7,7 @@
             [klaxon.client :as client]
             [klaxon.order :as order]
             [klaxon.order-chan :refer [order-chan]]
+            [klaxon.logging :as logging]
             [klaxon.config :as config]
 
             [pinger.core :as pinger])
@@ -97,15 +98,15 @@
              notify          (chan 10)
              stop            (chan)
              err             (chan 10)}}]
-  (go-loop []
+  (let [logger (logging/print-logger)]
     (let [event (alt! (:out orders) ([order] {:type :order :order order})
                       (:err orders) ([err]   {:type :err :err err})
                       stop          ([_]     {:type :stop}))]
       (case (:type event)
-        :stop  (do (println (format "stopping order monitor at %s" (Instant/now)))
+        :stop  (do (logging/info! logger (format "stopping order monitor at %s" (Instant/now)))
                    (>! (:stop orders) :stop))
         :err   (let [{error :error} event]
-                 (println (format "error from order stream: %s" error))
+                 (logging/error! logger (format "error from order stream: %s" error))
                  (>! err error)
                  (recur))
         :order (let [{order :order} event]
@@ -129,10 +130,10 @@
                       (:err notifications) ([{error :error}]  {:type :error  :error error})
                       stop                 ([_]               {:type :stop}))]
       (case (:type event)
-        :stop   (do (println (format "stopping monitor-and-alert at %s" (Instant/now)))
+        :stop   (do (logging/info! logger (format "stopping monitor-and-alert at %s" (Instant/now)))
                     (>! (:stop notifications) 1))
         :err    (let [{error :error} event]
-                  (println (format "error from notify stream: %s" error))
+                  (logging/error! logger (format "error from notify stream: %s" error))
                   (>! err error)
                   (recur))
         :notify (let [{{title :title body :body type :type} :note} event]

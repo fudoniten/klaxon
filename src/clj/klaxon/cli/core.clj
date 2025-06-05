@@ -12,6 +12,7 @@
             [klaxon.config :as config]
             [klaxon.jwt :as jwt]
             [klaxon.order-chan :refer [order-chan]]
+            [klaxon.logging :as logging]
 
             [pinger.core :as pinger])
   (:import java.time.Instant)
@@ -55,7 +56,8 @@
 (defn -main
   ;; Entry point for the Klaxon CLI application.
   [& args]
-  (let [required-args #{:key-file :ntfy-topic :poll-seconds}
+  (let [logger (logging/print-logger)
+        required-args #{:key-file :ntfy-topic :poll-seconds}
         {:keys [options _ errors summary]} (parse-opts args required-args cli-opts)]
     (when (:help options) (msg-quit 0 (usage summary)))
     (when (seq errors) (msg-quit 1 (usage summary errors)))
@@ -65,7 +67,7 @@
                   poll-seconds
                   verbose]} options
           key-data (jwt/load-key-file key-file)]
-      (when verbose (println (format "launching klaxon server")))
+      (when verbose (logging/info! logger (format "launching klaxon server")))
       (let [client        (client/create ::client/hostname "api.coinbase.com"
                                          ::jwt/key-data key-data)
             start         (Instant/now)
@@ -79,7 +81,7 @@
           (let [evt (alt! errs          ([{error :error}] {:type :error :error error})
                           shutdown-chan ([_] {:type :shutdown}))]
             (case (:type evt)
-              :error    (do (println (format "ERROR: %s" (:error evt)))
+              :error    (do (logging/error! logger (format "ERROR: %s" (:error evt)))
                             (recur))
               :shutdown (println "stopping error stream..."))))
         (<!! shutdown-chan)
