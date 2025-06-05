@@ -1,7 +1,6 @@
 (ns klaxon.account
   ;; This namespace defines account-related specifications and protocols.
-  (:require [clojure.spec.alpha :as s]
-            [klaxon.common :as common]))
+  (:require [clojure.spec.alpha :as s]))
 
 (s/def ::balance   number?)
 (s/def ::hold      number?)
