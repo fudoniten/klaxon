@@ -22,6 +22,8 @@
 
 (s/def ::duration (partial instance? Duration))
 
+(s/def ::heartbeat (s/keys :req [::timestamp]))
+
 (defn round-to-dollar [n]
   ;; Rounds a number to the nearest dollar.
   (.setScale (bigdec n) 0 RoundingMode/HALF_EVEN))

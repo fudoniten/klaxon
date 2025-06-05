@@ -31,6 +31,8 @@
     :default (config/get-config :ntfy-server)]
    ["-t" "--ntfy-topic TOPIC" (str "ntfy.sh topic to which notifications will be sent. Default: " (config/get-config :ntfy-topic))]])
 
+(s/def ::cli-options (s/keys :req-un [::key-file ::ntfy-topic ::poll-seconds]))
+
 (defn- msg-quit
   [status msg]
   (logging/info! logger msg)

@@ -15,6 +15,8 @@
 
 (def account? (partial satisfies? CurrencyAccount))
 
+(s/def ::account (s/keys :req [::balance ::hold ::available]))
+
 (defn currency-account? [curr acct]
   (= curr (currency acct)))
 

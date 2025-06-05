@@ -13,6 +13,8 @@
 (s/def ::client
   (s/keys :req [::hostname ::http-client]))
 
+(s/def ::client (s/keys :req [::hostname ::http-client]))
+
 (s/fdef create
   :args (s/cat :opts (s/keys* :req-un [::hostname ::jwt/key-data]))
   :ret  ::client)

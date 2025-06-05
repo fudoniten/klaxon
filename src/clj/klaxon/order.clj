@@ -8,6 +8,8 @@
             [camel-snake-kebab.core :refer [->kebab-case-keyword]])
   (:import [java.time Duration Instant]))
 
+(s/def ::order (s/keys :req [::id ::filled-size ::filled-value ::fee ::completion-percentage ::product-id ::last-fill-time ::created-time ::average-filled-price ::settled? ::total-value ::total-fees ::product-type ::status ::side ::user-id ::order-type]))
+
 (defn- fn-order-to [type]
   ;; Helper function to define a spec for order-related functions.
   (s/fspec :args (s/cat :order ::order)

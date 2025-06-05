@@ -16,6 +16,8 @@
       (req/with-header :content-type "application/json")
       (req/with-header :accept "application/json")))
 
+(s/def ::api-query (s/keys :req-un [::start-date ::end-date ::product-id ::status]))
+
 (defn filter-keys [m f]
   (into {} (filter (comp f val) m)))
 

@@ -12,6 +12,8 @@
 
   (:import java.time.Instant))
 
+(s/def ::order-channel (s/keys :req [::out ::err ::stop]))
+
 (defn order-chan
   ;; Creates a channel for streaming order data with periodic polling.
   [client &

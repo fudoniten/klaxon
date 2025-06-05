@@ -18,6 +18,8 @@
 
 (s/def ::logger logger?)
 
+(s/def ::logger (s/keys :req [::debug! ::warn! ::error! ::fatal! ::info! ::notify! ::alert!]))
+
 (defn dummy-logger []
   ;; A no-op logger implementation for testing or disabling logging.
   (reify Logger

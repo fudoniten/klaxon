@@ -27,6 +27,8 @@
 
 (s/def ::key-data (s/keys :req [::key-name ::key]))
 
+(s/def ::jwt-claims (s/keys :req [::iss ::nbf ::exp ::sub ::uri]))
+
 (defn current-timestamp [] (.getEpochSecond (Instant/now)))
 
 (s/fdef load-ec-private-key

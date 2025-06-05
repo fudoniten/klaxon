@@ -18,6 +18,8 @@
 (s/fdef delayed-fill?
   :args (s/cat :threshold-age duration? :order ::order/order)
   :ret  boolean?)
+(s/def ::monitor-params (s/keys :req-un [::threshold-value ::threshold-age ::notify ::stop ::err]))
+
 (defn delayed-fill? [threshold-age order]
   "Checks if an order has been triggered but not filled within a threshold age."
   (and (> (order/age order) threshold-age)
