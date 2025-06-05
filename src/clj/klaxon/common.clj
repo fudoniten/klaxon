@@ -197,5 +197,5 @@
         (case (:type update)
           :timeout (do (>! heartbeat {:timestamp (:content update)})
                        (recur))
-          :stop    (println "stopping heartbeat..."))))
+          :stop    (logging/info! logger "stopping heartbeat..."))))
     {:heartbeat heartbeat :delay delay :stop stop}))
