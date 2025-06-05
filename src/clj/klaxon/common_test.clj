@@ -1,13 +1,13 @@
 (ns klaxon.common-test
   (:require [clojure.test :refer :all]
-            [klaxon.common :as common]))
+            [klaxon.utils :as utils]))
 
 (deftest test-round-to-dollar
   (testing "Round number to nearest dollar"
-    (is (= 10M (common/round-to-dollar 10.49)))
-    (is (= 11M (common/round-to-dollar 10.50)))))
+    (is (= 10M (utils/round-to-dollar 10.49)))
+    (is (= 11M (utils/round-to-dollar 10.50)))))
 
 (deftest test-round-to-cent
   (testing "Round number to nearest cent"
-    (is (= 10.49M (common/round-to-cent 10.494)))
-    (is (= 10.50M (common/round-to-cent 10.505)))))
+    (is (= 10.49M (utils/round-to-cent 10.494)))
+    (is (= 10.50M (utils/round-to-cent 10.505)))))

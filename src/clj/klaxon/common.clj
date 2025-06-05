@@ -53,9 +53,6 @@
 
 (defn to-uuid [s] (java.util.UUID/fromString s))
 
-(defn sort-by-field [field]
-  (partial sort-by field (fn [a b] (.before a b))))
-
 (defprotocol Result
   (success? [self])
   (error? [self])
