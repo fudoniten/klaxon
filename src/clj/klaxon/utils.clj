@@ -1,7 +1,6 @@
 (ns klaxon.utils
-  (:require [clojure.string :as str])
   (:import java.math.RoundingMode
-           [java.time Duration Instant]))
+           [java.time Instant]))
 
 (defn round-to-dollar [n]
   ;; Rounds a number to the nearest dollar.

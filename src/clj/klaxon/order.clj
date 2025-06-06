@@ -3,7 +3,8 @@
   (:require [clojure.spec.alpha :as s]
             [clojure.string :as str]
 
-            [klaxon.common :refer [*-> convert-keys]])
+            [klaxon.common :refer [*-> convert-keys] :as common]
+            [klaxon.utils :refer [parse-timestamp]])
   (:import [java.time Duration Instant]))
 
 (s/def ::order (s/keys :req [::id ::filled-size ::filled-value ::fee ::completion-percentage ::product-id ::last-fill-time ::created-time ::average-filled-price ::settled? ::total-value ::total-fees ::product-type ::status ::side ::user-id ::order-type]))
@@ -76,8 +77,8 @@
                       :fee                     ::fee                   bigdec-or-zero
                       :completion_percentage   ::completion-percentage bigdec-or-zero
                       :product_id              ::product-id            keywordize
-                      :last_fill_time          ::last-fill-time        common/parse-timestamp
-                      :created_time            ::created-time          common/parse-timestamp
+                      :last_fill_time          ::last-fill-time        parse-timestamp
+                      :created_time            ::created-time          parse-timestamp
                       :average_filled_price    ::average-filled-price  bigdec-or-zero
                       :settled                 ::settled?              identity
                       :total_value_after_fees  ::total-value           bigdec-or-zero

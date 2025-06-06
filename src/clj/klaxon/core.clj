@@ -4,10 +4,10 @@
             [clojure.core.async :refer [<! >! chan go-loop alt!]]
             [clojure.spec.alpha :as s]
 
-            [klaxon.client :as client]
             [klaxon.order :as order]
-            [klaxon.order-chan :refer [order-chan]]
-            [klaxon.config :as config :refer [logger]]
+            [klaxon.config :as config]
+            [klaxon.common :refer [logger]]
+            [klaxon.logging :as log]
 
             [pinger.core :as pinger])
 
@@ -87,7 +87,6 @@
 
 (defn monitor-orders
   "Monitors orders for specific conditions and sends notifications based on thresholds."
-  "Monitors orders for specific conditions and sends notifications based on thresholds."
   [orders
    & {:keys [threshold-value
              threshold-age
@@ -99,14 +98,15 @@
              notify          (chan 10)
              stop            (chan)
              err             (chan 10)}}]
+  (go-loop []
     (let [event (alt! (:out orders) ([order] {:type :order :order order})
                       (:err orders) ([err]   {:type :err :err err})
                       stop          ([_]     {:type :stop}))]
       (case (:type event)
-        :stop  (do (logging/info! logger (format "stopping order monitor at %s" (Instant/now)))
+        :stop  (do (log/info! logger (format "stopping order monitor at %s" (Instant/now)))
                    (>! (:stop orders) :stop))
         :err   (let [{error :error} event]
-                 (logging/error! logger (format "error from order stream: %s" error))
+                 (log/error! logger (format "error from order stream: %s" error))
                  (>! err error)
                  (recur))
         :order (let [{order :order} event]
@@ -130,10 +130,10 @@
                       (:err notifications) ([{error :error}]  {:type :error  :error error})
                       stop                 ([_]               {:type :stop}))]
       (case (:type event)
-        :stop   (do (logging/info! logger (format "stopping monitor-and-alert at %s" (Instant/now)))
+        :stop   (do (log/info! logger (format "stopping monitor-and-alert at %s" (Instant/now)))
                     (>! (:stop notifications) 1))
         :err    (let [{error :error} event]
-                  (logging/error! logger (format "error from notify stream: %s" error))
+                  (log/error! logger (format "error from notify stream: %s" error))
                   (>! err error)
                   (recur))
         :notify (let [{{title :title body :body type :type} :note} event]

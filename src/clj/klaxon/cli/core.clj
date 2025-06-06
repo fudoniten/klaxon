@@ -5,7 +5,7 @@
             [clojure.set :as set]
             [clojure.string :as str]
 
-            [klaxon.common :as common]
+            [klaxon.common :refer [logger]]
             [klaxon.client :as client]
             [klaxon.core :refer [monitor-and-alert]]
             [klaxon.config :as config]
@@ -30,7 +30,7 @@
     :default (config/get-config :ntfy-server)]
    ["-t" "--ntfy-topic TOPIC" (str "ntfy.sh topic to which notifications will be sent. Default: " (config/get-config :ntfy-topic))]])
 
-(s/def ::cli-options (s/keys :req-un [::key-file ::ntfy-topic ::poll-seconds]))
+#_(s/def ::cli-options (s/keys :req-un [::key-file ::ntfy-topic ::poll-seconds]))
 
 (defn- msg-quit
   [status msg]

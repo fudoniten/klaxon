@@ -5,7 +5,6 @@
             [klaxon.common :refer [->* convert-key]]
             [klaxon.client :as client]
             [klaxon.order :as order]
-            [klaxon.common :as common]
 
             [fudo-clojure.http.request :as req]
             [fudo-clojure.result :as result :refer [map-success]]))
@@ -15,8 +14,6 @@
       (req/as-get)
       (req/with-header :content-type "application/json")
       (req/with-header :accept "application/json")))
-
-(s/def ::api-query (s/keys :req-un [::start-date ::end-date ::product-id ::status]))
 
 (defn filter-keys [m f]
   (into {} (filter (comp f val) m)))

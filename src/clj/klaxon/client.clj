@@ -3,6 +3,7 @@
   (:require [clojure.spec.alpha :as s]
             [clojure.string :as str]
 
+            [klaxon.config :as config]
             [klaxon.jwt :as jwt]
 
             [fudo-clojure.http.client :as http]
