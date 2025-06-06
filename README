@@ -16,20 +16,19 @@ To install Klaxon, ensure you have Nix installed on your system. Then, use the f
 nix build .#klaxon
 ```
 
-## Configuration
+## Configuration and Usage
 
-Klaxon requires a configuration file in EDN format. The configuration should include the following keys:
+Klaxon is configured via command-line arguments. The following options are available:
 
-- `:ntfy-server` - The ntfy server hostname.
-- `:poll-seconds` - The frequency in seconds for polling order data.
-- `:key-file` - Path to the JSON file containing Coinbase key data.
-
-## Usage
+- `--key-file` - Path to the JSON file containing Coinbase key data.
+- `--ntfy-server` - The ntfy server hostname (default: `ntfy.sh`).
+- `--ntfy-topic` - The ntfy channel to which notifications will be sent.
+- `--poll-seconds` - The frequency in seconds for polling order data.
 
 To run Klaxon, use the following command:
 
 ```bash
-nix run .#klaxon -- --key-file path/to/keyfile.json --ntfy-server ntfy.sh --ntfy-topic your-topic
+nix run .#klaxon -- --key-file path/to/keyfile.json --ntfy-server ntfy.sh --ntfy-topic your-topic --poll-seconds 60
 ```
 
 ## Development
