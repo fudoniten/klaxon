@@ -46,7 +46,7 @@
               [ (updateClojureDeps cljLibs) ];
           };
           klaxonServer = pkgs.mkShell {
-            buildInputs = with self.packages."${system}"; [ klaxonServer ];
+            buildInputs = with self.packages."${system}"; [ klaxon ];
           };
         };
       }) // {
