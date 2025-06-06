@@ -41,6 +41,8 @@
 
         checks = {
           clojureTests = pkgs.runCommand "clojure-tests" { } ''
+            mkdir -p $TMPDIR
+            cd $TMPDIR
             ${pkgs.clojure}/bin/clojure -M:test
           '';
         };
