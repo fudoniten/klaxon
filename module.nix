@@ -10,23 +10,23 @@ let
 
 in {
   options.fudo.services.klaxon = with types; {
-    enable = mkEnableOption "Enable Klaxon server.";
+    enable = mkEnableOption "Enable or disable the Klaxon server. When enabled, the server will start as a systemd service.";
 
     keyFile = mkOption {
       type = str;
-      description = "File containing Coinbase key data in JSON format.";
+      description = "Path to the JSON file containing Coinbase key data. This file is used for authenticating API requests.";
     };
 
     ntfy = {
       server = mkOption {
         type = str;
-        description = "ntfy server hostname.";
+        description = "Hostname of the ntfy server used for sending notifications. Default is 'ntfy.sh'.";
         default = "ntfy.sh";
       };
 
       topic = mkOption {
         type = str;
-        description = "ntfy channel to which notifications will be sent.";
+        description = "The ntfy channel to which notifications will be sent. This should be a valid channel name on the ntfy server.";
       };
     };
   };
