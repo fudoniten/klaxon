@@ -39,6 +39,12 @@
           };
         };
 
+        checks = {
+          clojureTests = pkgs.runCommand "clojure-tests" { } ''
+            ${pkgs.clojure}/bin/clojure -M:test
+          '';
+        };
+
         devShells = rec {
           default = updateDeps;
           updateDeps = pkgs.mkShell {
