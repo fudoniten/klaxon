@@ -36,20 +36,23 @@
   :ret  ec-private-key?)
 (defn- -load-ec-private-key [^String pem-str]
   (Security/addProvider (BouncyCastleProvider.))
-  (with-open [reader (PEMParser. (StringReader. pem-str))]
-    (let [obj (.readObject reader)
-          converter (-> (JcaPEMKeyConverter.) (.setProvider "BC"))
-          key (cond
-                (instance? PrivateKey obj)
-                obj
+  (try
+    (with-open [reader (PEMParser. (StringReader. pem-str))]
+      (let [obj (.readObject reader)
+            converter (-> (JcaPEMKeyConverter.) (.setProvider "BC"))
+            key (cond
+                  (instance? PrivateKey obj)
+                  obj
 
-                (instance? org.bouncycastle.openssl.PEMKeyPair obj)
-                (.getPrivateKey converter (.getPrivateKeyInfo obj))
+                  (instance? org.bouncycastle.openssl.PEMKeyPair obj)
+                  (.getPrivateKey converter (.getPrivateKeyInfo obj))
 
-                :else
-                (throw (ex-info "Unexpected key type" {:obj obj})))
-          kf (KeyFactory/getInstance "EC")]
-      (.generatePrivate kf (PKCS8EncodedKeySpec. (.getEncoded key))))))
+                  :else
+                  (throw (ex-info "Unexpected key type" {:obj obj})))
+            kf (KeyFactory/getInstance "EC")]
+        (.generatePrivate kf (PKCS8EncodedKeySpec. (.getEncoded key)))))
+    (catch Exception e
+      (throw (ex-info "Failed to load EC private key" {:exception e}))))
 
 (s/fdef load-key
   :args (s/cat :key-name string? :key string?)

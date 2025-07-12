@@ -62,30 +62,34 @@
         {:keys [options _ errors summary]} (parse-opts args required-args cli-opts)]
     (when (:help options) (msg-quit 0 (usage summary)))
     (when (seq errors) (msg-quit 1 (usage summary errors)))
-    (let [{:keys [key-file
-                  ntfy-server
-                  ntfy-topic
-                  poll-seconds
-                  verbose]} options
-          key-data (jwt/load-key-file key-file)]
-      (when verbose (logging/info! logger (format "launching klaxon server")))
-      (let [client        (client/create ::client/hostname "api.coinbase.com"
-                                         ::jwt/key-data key-data)
-            start         (Instant/now)
-            shutdown-chan (chan)
-            orders        (order-chan client :delay poll-seconds :start-time start)
-            pinger        (pinger/open-channel ntfy-server ntfy-topic)
-            {monitor-stop :stop errs :err} (monitor-and-alert pinger orders)]
-        (.addShutdownHook (Runtime/getRuntime)
-                          (Thread. (fn [] (>!! shutdown-chan true))))
-        (go-loop []
-          (let [evt (alt! errs          ([{error :error}] {:type :error :error error})
-                          shutdown-chan ([_] {:type :shutdown}))]
-            (case (:type evt)
-              :error    (do (logging/error! logger (format "ERROR: %s" (:error evt)))
-                            (recur))
-              :shutdown (println "stopping error stream..."))))
-        (<!! shutdown-chan)
-        (println "stopping order monitor...")
-        (>!! monitor-stop true)))
+    (try
+      (let [{:keys [key-file
+                    ntfy-server
+                    ntfy-topic
+                    poll-seconds
+                    verbose]} options
+            key-data (jwt/load-key-file key-file)]
+        (when verbose (logging/info! logger (format "launching klaxon server")))
+        (let [client        (client/create ::client/hostname "api.coinbase.com"
+                                           ::jwt/key-data key-data)
+              start         (Instant/now)
+              shutdown-chan (chan)
+              orders        (order-chan client :delay poll-seconds :start-time start)
+              pinger        (pinger/open-channel ntfy-server ntfy-topic)
+              {monitor-stop :stop errs :err} (monitor-and-alert pinger orders)]
+          (.addShutdownHook (Runtime/getRuntime)
+                            (Thread. (fn [] (>!! shutdown-chan true))))
+          (go-loop []
+            (let [evt (alt! errs          ([{error :error}] {:type :error :error error})
+                            shutdown-chan ([_] {:type :shutdown}))]
+              (case (:type evt)
+                :error    (do (logging/error! logger (format "ERROR: %s" (:error evt)))
+                              (recur))
+                :shutdown (println "stopping error stream..."))))
+          (<!! shutdown-chan)
+          (println "stopping order monitor...")
+          (>!! monitor-stop true)))
+      (catch Exception e
+        (logging/error! logger (format "Error in main: %s" (.getMessage e)))
+        (msg-quit 1 "An error occurred, stopping klaxon server")))
     (msg-quit :message "stopping klaxon server")))

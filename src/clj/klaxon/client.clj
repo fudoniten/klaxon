@@ -24,9 +24,12 @@
   [& {:keys [::hostname ::jwt/key-data]}]
   (assert (some? hostname) "hostname cannot be nil")
   (assert (some? key-data) "key-data cannot be nil")
-  (let [authenticator (fn [req] (jwt/authenticate-request! key-data req))
-        http-client (http/json-client :authenticator authenticator)]
-    {::hostname hostname ::http-client http-client}))
+  (try
+    (let [authenticator (fn [req] (jwt/authenticate-request! key-data req))
+          http-client (http/json-client :authenticator authenticator)]
+      {::hostname hostname ::http-client http-client})
+    (catch Exception e
+      (throw (ex-info "Failed to create HTTP client" {:exception e}))))
 
 (defn- to-path-elem [el]
   (cond (keyword? el) (name el)
