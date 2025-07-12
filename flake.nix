@@ -41,39 +41,12 @@
             inherit cljLibs;
           };
 
-          klaxonContainer = let
-            # nix2containerPkgs = nix2container.packages."${system}";
-            klaxonImage = pkgs.callPackage ./container.nix {
-              inherit (nixpkgs.lib) nixosSystem;
-              inherit system klaxon;
+          klaxonContainer =
+            let containerPkgs = nix2container.packages."${system}";
+            in containerPkgs.nix2container.buildImage {
+              name = "klaxon";
+              config = { entrypoint = [ "${klaxon}/bin/klaxon" ]; };
             };
-          in klaxonImage; # .config.system.build.ociImage;
-
-          deployContainer = pkgs.writeShellApplication {
-            name = "deploy-container";
-            runtimeInputs = with pkgs; [ scopeo ];
-            text = ''
-              set -euo pipefail
-
-              if [ "$#" -ne 2 ]; then
-                echo "usage: deploy-container <registry>/<image> <tag>" >&2
-                exit 1
-              fi
-
-              REGISTRY="$1"
-              TAG="$2"
-
-              echo "pushing container image $REGISTRY..."
-              skopeo copy oci:"${klaxonContainer}" docker://$IMAGE:$TAG
-              if [ $? -eq 0 ]; then
-                echo "done."
-                exit 0
-              else
-                echo "FAILED"
-                exit 1
-              fi
-            '';
-          };
         };
 
         checks = {

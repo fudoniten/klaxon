@@ -12,3 +12,4 @@ target/
 pom.xml
 .aider*
 .env
+/result
