@@ -16,9 +16,11 @@
       url = "github:fudoniten/pinger";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix2container.url = "github:nlewo/nix2container";
   };
 
-  outputs = { self, nixpkgs, utils, helpers, fudo-clojure, pinger, ... }@inputs:
+  outputs =
+    { self, nixpkgs, utils, helpers, fudo-clojure, pinger, nix2container, ... }:
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
@@ -31,15 +33,47 @@
       in {
         packages = rec {
           default = klaxon;
+
           klaxon = helpers.packages."${system}".mkClojureBin {
             name = "org.fudo/klaxon";
             primaryNamespace = "klaxon.cli.core";
             src = ./.;
             inherit cljLibs;
           };
+
           klaxonContainer = let
-            klaxonImage = pkgs.callpackage ./container.nix { inherit klaxon; };
-          in klaxonImage.config.system.build.containerImage;
+            # nix2containerPkgs = nix2container.packages."${system}";
+            klaxonImage = pkgs.callPackage ./container.nix {
+              inherit (nixpkgs.lib) nixosSystem;
+              inherit system klaxon;
+            };
+          in klaxonImage; # .config.system.build.ociImage;
+
+          deployContainer = pkgs.writeShellApplication {
+            name = "deploy-container";
+            runtimeInputs = with pkgs; [ scopeo ];
+            text = ''
+              set -euo pipefail
+
+              if [ "$#" -ne 2 ]; then
+                echo "usage: deploy-container <registry>/<image> <tag>" >&2
+                exit 1
+              fi
+
+              REGISTRY="$1"
+              TAG="$2"
+
+              echo "pushing container image $REGISTRY..."
+              skopeo copy oci:"${klaxonContainer}" docker://$IMAGE:$TAG
+              if [ $? -eq 0 ]; then
+                echo "done."
+                exit 0
+              else
+                echo "FAILED"
+                exit 1
+              fi
+            '';
+          };
         };
 
         checks = {

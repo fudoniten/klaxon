@@ -1,9 +1,8 @@
-{ lib, nixos, klaxon, system, writeShellScript, ... }:
+{ lib, nixosSystem, klaxon, system, writeShellScript, ... }:
 
 with lib;
 let
   klaxonSystem = { pkgs, ... }: {
-
     systemd.services.klaxon = {
       description = "Klaxon Trade Monitor Daemon";
       wantedBy = [ "multi-user.target" ];
@@ -22,7 +21,7 @@ let
     system.stateVersion = "25.05";
   };
 
-in nixos {
+in nixosSystem {
   inherit system;
   modules = [ klaxonSystem ];
 }
