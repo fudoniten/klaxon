@@ -28,14 +28,18 @@
         (if (= :heartbeat (:type event))
           (let [end    (-> event :timestamp)
                 orders (api/get-orders! client {::api/start-date start ::api/end-date end})]
-            (if (api/failure? orders)
-              (do (>! err (ex-info (format "%s: Failed to connect to Coinbase API: %s"
-                                           (Instant/now)
-                                           (api/error-message orders))
-                                   {:error orders}))
-                  (logging/error! logger (format "Failed to connect to Coinbase API: %s" (api/error-message orders))))
-              (doseq [order (result/unwrap orders)]
-                (>! out order)))
+            (try
+              (if (api/failure? orders)
+                (do (>! err (ex-info (format "%s: Failed to connect to Coinbase API: %s"
+                                             (Instant/now)
+                                             (api/error-message orders))
+                                     {:error orders}))
+                    (logging/error! logger (format "Failed to connect to Coinbase API: %s" (api/error-message orders))))
+                (doseq [order (result/unwrap orders)]
+                  (>! out order)))
+              (catch Exception e
+                (logging/error! logger (format "Error fetching orders: %s" (.getMessage e)))
+                (>! err (ex-info "Error fetching orders" {:exception e}))))
             (recur (alt! heartbeat ([{timestamp :timestamp}] {:type :heartbeat :timestamp timestamp})
                          stop      ([_] {:type :stop}))
                    end))
