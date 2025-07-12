@@ -18,7 +18,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, utils, helpers, fudo-clojure, pinger, ... }:
+  outputs = { self, nixpkgs, utils, helpers, fudo-clojure, pinger, ... }@inputs:
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
@@ -57,7 +57,12 @@
             buildInputs = with self.packages."${system}"; [ klaxon ];
           };
         };
-      }) // {
+      }) // let
+        container = import ./container.nix { inherit (pkgs) dockerTools; klaxon = self.packages."${system}".klaxon; };
+      in {
+        dockerImages = {
+          klaxon = container;
+        };
         nixosModules = rec {
           default = klaxonServer;
           klaxonServer = import ./module.nix self.packages;
