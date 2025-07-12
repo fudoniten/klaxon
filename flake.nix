@@ -45,7 +45,10 @@
             let containerPkgs = nix2container.packages."${system}";
             in containerPkgs.nix2container.buildImage {
               name = "klaxon";
-              config = { entrypoint = [ "${klaxon}/bin/klaxon" ]; };
+              config = {
+                entrypoint = [ "${klaxon}/bin/klaxon" ];
+                env = [ "NFTY_SERVER" "NTFY_TOPIC" ];
+              };
             };
         };
 
