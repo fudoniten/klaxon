@@ -79,6 +79,7 @@
               {monitor-stop :stop errs :err} (monitor-and-alert pinger orders)]
           (.addShutdownHook (Runtime/getRuntime)
                             (Thread. (fn [] (>!! shutdown-chan true))))
+          (pinger/send! pinger "Monitoring trades" (str "Starting to monitor trades at " (Instant/now)))
           (go-loop []
             (let [evt (alt! errs          ([{error :error}] {:type :error :error error})
                             shutdown-chan ([_] {:type :shutdown}))]
