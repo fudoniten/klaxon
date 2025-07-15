@@ -1,6 +1,9 @@
 (ns klaxon.order-test
-  (:require [clojure.test :refer :all]
-            [klaxon.order :as order]))
+  (:require [clojure.test :refer [deftest is testing run-tests]]
+            [klaxon.order :as order]
+            [clojure.spec.alpha :as s]))
+
+(defn pthru [o] (clojure.pprint/pprint o) o)
 
 (deftest test-instantiate-order
   (testing "Instantiate order with valid data"
@@ -25,10 +28,12 @@
 
 (deftest test-sale?
   (testing "Check if order is a sale"
-    (let [order {:side :sell}]
+    (let [order {::order/side :sell}]
       (is (order/sale? order)))))
 
 (deftest test-buy?
   (testing "Check if order is a buy"
-    (let [order {:side :buy}]
+    (let [order {::order/side :buy}]
       (is (order/buy? order)))))
+
+(run-tests)

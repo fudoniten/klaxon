@@ -34,7 +34,7 @@
 (s/fdef -load-ec-private-key
   :args (s/cat :pem-str string?)
   :ret  ec-private-key?)
-(defn- -load-ec-private-key [^String pem-str]
+(defn -load-ec-private-key [^String pem-str]
   (Security/addProvider (BouncyCastleProvider.))
   (try
     (with-open [reader (PEMParser. (StringReader. pem-str))]
@@ -52,7 +52,7 @@
             kf (KeyFactory/getInstance "EC")]
         (.generatePrivate kf (PKCS8EncodedKeySpec. (.getEncoded key)))))
     (catch Exception e
-      (throw (ex-info "Failed to load EC private key" {:exception e}))))
+      (throw (ex-info "Failed to load EC private key" {:exception e})))))
 
 (s/fdef load-key
   :args (s/cat :key-name string? :key string?)

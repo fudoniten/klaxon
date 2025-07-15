@@ -26,7 +26,7 @@
 (s/def ::filled-value decimal?)
 (s/def ::fee decimal?)
 (s/def ::completion-percentage (s/and decimal? #(<= 0 % 100)))
-(s/def ::product-id decimal?)
+(s/def ::product-id string?)
 (s/def ::last-fill-time timestamp?)
 (s/def ::created-time timestamp?)
 (s/def ::average-filled-price decimal?)
@@ -76,7 +76,7 @@
                       :filled_value            ::filled-value          bigdec-or-zero
                       :fee                     ::fee                   bigdec-or-zero
                       :completion_percentage   ::completion-percentage bigdec-or-zero
-                      :product_id              ::product-id            keywordize
+                      :product_id              ::product-id            identity
                       :last_fill_time          ::last-fill-time        parse-timestamp
                       :created_time            ::created-time          parse-timestamp
                       :average_filled_price    ::average-filled-price  bigdec-or-zero
@@ -112,6 +112,8 @@
 (defn order? [o]
   ;; Validates if the given object is a valid order.
   (s/valid? ::order o))
+
+(defn pthru [o] (println o) o)
 
 (defn sale? [o] (= (::side o) :sell))
 (defn buy? [o] (= (::side o) :buy))

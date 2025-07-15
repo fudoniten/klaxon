@@ -29,7 +29,7 @@
           http-client (http/json-client :authenticator authenticator)]
       {::hostname hostname ::http-client http-client})
     (catch Exception e
-      (throw (ex-info "Failed to create HTTP client" {:exception e}))))
+      (throw (ex-info "Failed to create HTTP client" {:exception e})))))
 
 (defn- to-path-elem [el]
   (cond (keyword? el) (name el)

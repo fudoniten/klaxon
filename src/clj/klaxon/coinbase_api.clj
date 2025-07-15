@@ -18,12 +18,6 @@
 (defn filter-keys [m f]
   (into {} (filter (comp f val) m)))
 
-(defn update-key
-  [m k f]
-  (if (contains? m k)
-    (update m k f)
-    m))
-
 (defn convert-key-if-preset [m ok nk f]
   (if (contains? m ok)
     (assoc m nk (f (get m ok)))
@@ -37,8 +31,6 @@
       (convert-key-if-preset ::product-id :product_id (->* str str/upper-case))
       (convert-key-if-preset ::status :status (->* str str/upper-case))))
 
-(defn error? [o] (result/failure? o))
-
 (def error-message result/error-message)
 
 (def failure? result/failure?)
@@ -46,9 +38,10 @@
 (defn get-orders!
   ;; Fetches historical order data from the Coinbase API.
   ([client] (get-orders! client {}))
-  ([client query]
+  ([{:keys [::client/hostname] :as client} query]
    (let [result (client/get! client
                              (-> base-get-request
+                                 (req/with-host hostname)
                                  (req/with-path (client/build-path :api
                                                                    :v3
                                                                    :brokerage

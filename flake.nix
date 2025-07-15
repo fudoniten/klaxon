@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-24.11";
     utils.url = "github:numtide/flake-utils";
-    helpers = {
+    nix-helpers = {
       url = "github:fudoniten/fudo-nix-helpers";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -19,8 +19,7 @@
     nix2container.url = "github:nlewo/nix2container";
   };
 
-  outputs =
-    { self, nixpkgs, utils, helpers, fudo-clojure, pinger, nix2container, ... }:
+  outputs = { self, nixpkgs, utils, nix-helpers, fudo-clojure, pinger, ... }:
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
@@ -30,26 +29,41 @@
           "org.fudo/fudo-clojure" = fudoClojureLib;
           "org.fudo/pinger" = pingerLib;
         };
+        helpers = nix-helpers.packages."${system}";
+
       in {
         packages = rec {
           default = klaxon;
 
-          klaxon = helpers.packages."${system}".mkClojureBin {
+          klaxon = helpers.mkClojureBin {
             name = "org.fudo/klaxon";
             primaryNamespace = "klaxon.cli.core";
             src = ./.;
             inherit cljLibs;
           };
 
-          klaxonContainer =
-            let containerPkgs = nix2container.packages."${system}";
-            in containerPkgs.nix2container.buildImage {
-              name = "klaxon";
-              config = {
-                entrypoint = [ "${klaxon}/bin/klaxon" ];
-                env = [ "NFTY_SERVER" "NTFY_TOPIC" ];
-              };
-            };
+          # klaxonContainer =
+          #   let containerPkgs = nix2container.packages."${system}";
+          #   in containerPkgs.nix2container.buildImage {
+          #     name = "registry.kube.sea.fudo.link/klaxon";
+          #     config = {
+          #       entrypoint = [ "${klaxon}/bin/klaxon" ];
+          #       env = [ "NFTY_SERVER" "NTFY_TOPIC" ];
+          #     };
+          #     copyToRoot = pkgs.buildEnv {
+          #       name = "root";
+          #       paths = with pkgs; [ bashInteractive ];
+          #       pathsToLink = [ "/bin" ];
+          #     };
+          #   };
+
+          deployContainers = helpers.deployContainers {
+            name = "klaxon";
+            tags = [ "latest" ];
+            entrypoint = [ "${klaxon}/bin/klaxon" ];
+            env = [ "NTFY_SERVER" "NTFY_TOPIC" ];
+            verbose = true;
+          };
         };
 
         checks = {

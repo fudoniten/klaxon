@@ -20,9 +20,10 @@
   :ret  boolean?)
 (s/def ::monitor-params (s/keys :req-un [::threshold-value ::threshold-age ::notify ::stop ::err]))
 
-(defn delayed-fill? [threshold-age order]
+(defn delayed-fill?
   "Checks if an order has been triggered but not filled within a threshold age."
-  (and (> (order/age order) threshold-age)
+  [threshold-age order]
+  (and (> (compare (order/age order) threshold-age) 0)
        (not (order/filled? order))
        (order/stop-triggered? order)))
 
@@ -33,8 +34,9 @@
   :args (s/cat :threshold-value positive-decimal?
                :order           ::order/order)
   :ret  boolean?)
-(defn over-threshold? [threshold-value order]
+(defn over-threshold?
   "Determines if an order's total value exceeds a specified threshold."
+  [threshold-value order]
   (> (order/total-value order) threshold-value))
 
 (defn summarize-order
