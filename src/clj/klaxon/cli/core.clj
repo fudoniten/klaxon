@@ -7,7 +7,7 @@
 
             [klaxon.common :refer [logger]]
             [klaxon.client :as client]
-            [klaxon.core :refer [monitor-and-alert]]
+            [klaxon.core :refer [monitor-and-alert monitor-orders]]
             [klaxon.config :as config]
             [klaxon.jwt :as jwt]
             [klaxon.order-chan :refer [order-chan]]
@@ -75,8 +75,9 @@
               start         (Instant/now)
               shutdown-chan (chan)
               orders        (order-chan client :delay poll-seconds :start-time start)
+              notifications (monitor-orders orders)
               pinger        (pinger/open-channel ntfy-server ntfy-topic)
-              {monitor-stop :stop errs :err} (monitor-and-alert pinger orders)]
+              {monitor-stop :stop errs :err} (monitor-and-alert pinger notifications)]
           (.addShutdownHook (Runtime/getRuntime)
                             (Thread. (fn [] (>!! shutdown-chan true))))
           (pinger/send! pinger "Monitoring trades" (str "Starting to monitor trades at " (Instant/now)))
