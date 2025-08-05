@@ -69,7 +69,7 @@
         checks = {
           clojureTests = pkgs.runCommand "clojure-tests" { } ''
             mkdir -p $TMPDIR
-            cd $TMPDIR
+            HOME=$TMPDIR
             ${pkgs.clojure}/bin/clojure -M:test
           '';
         };
