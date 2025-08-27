@@ -11,7 +11,8 @@
 
 (def default-config
   {:ntfy-server "ntfy.sh"
-   :poll-seconds 60})
+   :poll-seconds 60
+   :threshold-age-minutes 30})
 
 (def config (atom default-config))
 

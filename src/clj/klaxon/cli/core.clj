@@ -4,6 +4,7 @@
             [clojure.tools.cli :as cli]
             [clojure.set :as set]
             [clojure.string :as str]
+            [clojure.stacktrace :refer [print-stack-trace]]
 
             [klaxon.common :refer [logger]]
             [klaxon.client :as client]
@@ -93,5 +94,6 @@
           (>!! monitor-stop true)))
       (catch Exception e
         (logging/error! logger (format "Error in main: %s" (.getMessage e)))
+        (logging/error! logger (with-out-str (print-stack-trace e)))
         (msg-quit 1 "An error occurred, stopping klaxon server")))
     (msg-quit :message "stopping klaxon server")))

@@ -16,7 +16,6 @@
       url = "github:fudoniten/pinger";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix2container.url = "github:nlewo/nix2container";
   };
 
   outputs = { self, nixpkgs, utils, nix-helpers, fudo-clojure, pinger, ... }:
@@ -41,21 +40,6 @@
             src = ./.;
             inherit cljLibs;
           };
-
-          # klaxonContainer =
-          #   let containerPkgs = nix2container.packages."${system}";
-          #   in containerPkgs.nix2container.buildImage {
-          #     name = "registry.kube.sea.fudo.link/klaxon";
-          #     config = {
-          #       entrypoint = [ "${klaxon}/bin/klaxon" ];
-          #       env = [ "NFTY_SERVER" "NTFY_TOPIC" ];
-          #     };
-          #     copyToRoot = pkgs.buildEnv {
-          #       name = "root";
-          #       paths = with pkgs; [ bashInteractive ];
-          #       pathsToLink = [ "/bin" ];
-          #     };
-          #   };
 
           deployContainers = helpers.deployContainers {
             name = "klaxon";
