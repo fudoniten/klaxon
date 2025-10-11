@@ -1,5 +1,5 @@
 (ns klaxon.common-test
-  (:require [clojure.test :refer [deftest is testing run-tests]]
+  (:require [clojure.test :refer [deftest is testing]]
             [klaxon.utils :as utils]))
 
 (deftest test-round-to-dollar
@@ -11,5 +11,3 @@
   (testing "Round number to nearest cent"
     (is (= 10.49M (utils/round-to-cent 10.494)))
     (is (= 10.50M (utils/round-to-cent 10.505)))))
-
-(run-tests)

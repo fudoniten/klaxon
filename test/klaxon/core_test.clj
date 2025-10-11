@@ -1,5 +1,5 @@
 (ns klaxon.core-test
-  (:require [clojure.test :refer [deftest is testing run-tests]]
+  (:require [clojure.test :refer [deftest is testing]]
             [klaxon.core :as core]
             [klaxon.order :as order]))
 
@@ -18,5 +18,3 @@
                      ::order/filled-size 0
                      ::order/order-type :stop-triggered}]
           (is (core/delayed-fill? threshold-age order)))))))
-
-(run-tests 'klaxon.core-test)

@@ -1,5 +1,5 @@
 (ns klaxon.order-test
-  (:require [clojure.test :refer [deftest is testing run-tests]]
+  (:require [clojure.test :refer [deftest is testing]]
             [klaxon.order :as order]
             [clojure.spec.alpha :as s]))
 
@@ -35,5 +35,3 @@
   (testing "Check if order is a buy"
     (let [order {::order/side :buy}]
       (is (order/buy? order)))))
-
-(run-tests)
