@@ -2,7 +2,7 @@
   description = "Klaxon Trade Alerts";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.11";
+    nixpkgs.url = "nixpkgs/nixos-25.05";
     utils.url = "github:numtide/flake-utils";
     nix-helpers = {
       url = "github:fudoniten/fudo-nix-helpers";
@@ -43,6 +43,7 @@
 
           deployContainers = helpers.deployContainers {
             name = "klaxon";
+            repo = "registry.kube.sea.fudo.link";
             tags = [ "latest" ];
             entrypoint = [ "${klaxon}/bin/klaxon" ];
             env = [ "NTFY_SERVER" "NTFY_TOPIC" ];
@@ -66,6 +67,16 @@
           };
           klaxonServer = pkgs.mkShell {
             buildInputs = with self.packages."${system}"; [ klaxon ];
+          };
+        };
+
+        apps = rec {
+          default = deployContainer;
+          deployContainer = {
+            type = "app";
+            program =
+              let deployContainer = self.packages."${system}".deployContainer;
+              in "${deployContainer}/bin/deployContainers";
           };
         };
       }) // {
