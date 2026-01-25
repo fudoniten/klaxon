@@ -2,7 +2,7 @@
   description = "Klaxon Trade Alerts";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-25.05";
+    nixpkgs.url = "nixpkgs/nixos-25.11";
     utils.url = "github:numtide/flake-utils";
     nix-helpers = {
       url = "github:fudoniten/fudo-nix-helpers";
@@ -52,18 +52,17 @@
         };
 
         checks = {
-          clojureTests = pkgs.runCommand "clojure-tests" { } ''
-            mkdir -p $TMPDIR
-            HOME=$TMPDIR
-            ${pkgs.clojure}/bin/clojure -M:test
-          '';
+          clojureTests = helpers.mkClojureTests {
+            name = "org.fudo/klaxon";
+            src = ./.;
+            inherit cljLibs;
+          };
         };
 
         devShells = rec {
           default = updateDeps;
           updateDeps = pkgs.mkShell {
-            buildInputs = with helpers.packages."${system}";
-              [ (updateClojureDeps cljLibs) ];
+            buildInputs = [ (helpers.updateClojureDeps { deps = cljLibs; }) ];
           };
           klaxonServer = pkgs.mkShell {
             buildInputs = with self.packages."${system}"; [ klaxon ];
@@ -71,12 +70,12 @@
         };
 
         apps = rec {
-          default = deployContainer;
-          deployContainer = {
+          default = deployContainers;
+          deployContainers = {
             type = "app";
             program =
-              let deployContainer = self.packages."${system}".deployContainer;
-              in "${deployContainer}/bin/deployContainers";
+              let deployContainers = self.packages."${system}".deployContainers;
+              in "${deployContainers}/bin/deployContainers";
           };
         };
       }) // {
