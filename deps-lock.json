@@ -12,29 +12,9 @@
     {
       "lib": "org.fudo/fudo-clojure",
       "url": "https://github.com/fudoniten/fudo-clojure.git",
-      "rev": "0a445a49e14c62a2b0b1ca497a1e5264fc0f8b2b",
-      "git-dir": "https/github.com/fudoniten/fudo-clojure",
-      "hash": "sha256-GoMpkb5ooBDJ47qvZMB+P2rW3/X9/LDu2Th5NJbfniA=",
-      "ancestor?": {
-        "56739be3b0968e4ddaea45c26112744d6d59640d": false
-      }
-    },
-    {
-      "lib": "org.fudo/fudo-clojure",
-      "url": "https://github.com/fudoniten/fudo-clojure.git",
       "rev": "56739be3b0968e4ddaea45c26112744d6d59640d",
       "git-dir": "https/github.com/fudoniten/fudo-clojure",
-      "hash": "sha256-4qdEhJFjXLV/sJrV9KfCQ1iPcZY6l8xbt9ZjnZxgU4U=",
-      "ancestor?": {
-        "0a445a49e14c62a2b0b1ca497a1e5264fc0f8b2b": true
-      }
-    },
-    {
-      "lib": "org.fudo/pinger",
-      "url": "https://github.com/fudoniten/pinger.git",
-      "rev": "489b4a2cab3ebc283fb9dfd20bd209df016b23fc",
-      "git-dir": "https/github.com/fudoniten/pinger",
-      "hash": "sha256-BXYFksmotk/tCCHVlVx41wGoISZmJzN5bQoZG6mMuCM="
+      "hash": "sha256-4qdEhJFjXLV/sJrV9KfCQ1iPcZY6l8xbt9ZjnZxgU4U="
     }
   ],
   "mvn-deps": [
