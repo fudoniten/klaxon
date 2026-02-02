@@ -28,7 +28,7 @@
           "org.fudo/fudo-clojure" = fudoClojureLib;
           "org.fudo/pinger" = pingerLib;
         };
-        helpers = nix-helpers.packages."${system}";
+        helpers = nix-helpers.legacyPackages."${system}";
 
       in {
         packages = rec {
