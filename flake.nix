@@ -22,11 +22,11 @@
     utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
-        fudoClojureLib = fudo-clojure.packages."${system}".fudo-clojure;
+        fudoClojureLib = fudo-clojure.packages."${system}".fudo-clojure.preppedSrc;
         pingerLib = pinger.packages."${system}".pinger;
         cljLibs = {
-          "org.fudo/fudo-clojure" = fudoClojureLib;
-          "org.fudo/pinger" = pingerLib;
+          "org.fudo/fudo-clojure" = fudoClojureLib.preppedSrc;
+          "org.fudo/pinger" = pingerLib.preppedSrc;
         };
         helpers = nix-helpers.legacyPackages."${system}";
 
