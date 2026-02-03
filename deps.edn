@@ -24,7 +24,7 @@
  :aliases {
    :test {:extra-paths ["test"]
           :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}
-                       io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
-          :main-opts ["-m" "cognitect.test-runner"]}
+                       eftest/eftest {:mvn/version "0.6.0"}}
+          :main-opts ["-e" "(require '[eftest.runner :refer [find-tests run-tests]]) (run-tests (find-tests \"test\"))"]}
  }
 }
