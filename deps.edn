@@ -7,7 +7,7 @@
   com.nimbusds/nimbus-jose-jwt #:mvn{:version "9.39"},
   org.fudo/pinger
   #:git{:url "https://github.com/fudoniten/pinger.git",
-        :sha "c01ab64662dcd2a046c1bfbaf13802ea944a9811"},
+        :sha "f013ad42e167067061777c66004b28740d6baa66"},
   org.fudo/fudo-clojure
   #:git{:url "https://github.com/fudoniten/fudo-clojure.git",
         :sha "a32e527a6db2962f29bbbe33c1c3475c13198a08"},

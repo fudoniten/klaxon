@@ -10,11 +10,11 @@
     };
     fudo-clojure = {
       url =
-        "github:fudoniten/fudo-clojure:a32e527a6db2962f29bbbe33c1c3475c13198a08";
+        "github:fudoniten/fudo-clojure/a32e527a6db2962f29bbbe33c1c3475c13198a08";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     pinger = {
-      url = "github:fudoniten/pinger:c01ab64662dcd2a046c1bfbaf13802ea944a9811";
+      url = "github:fudoniten/pinger/f013ad42e167067061777c66004b28740d6baa66";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

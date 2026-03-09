@@ -326,6 +326,7 @@
       "original": {
         "owner": "fudoniten",
         "repo": "fudo-clojure",
+        "rev": "a32e527a6db2962f29bbbe33c1c3475c13198a08",
         "type": "github"
       }
     },
@@ -434,11 +435,11 @@
         "utils": "utils_7"
       },
       "locked": {
-        "lastModified": 1770058348,
-        "narHash": "sha256-jqtOJhEOUCjJ8RoLkfejOlUyzSAHr6YHYwGXoUSnW5c=",
+        "lastModified": 1773087053,
+        "narHash": "sha256-t7aI+/9zMc2nU5XGyclHpyukm6ACb2WQL2yHfgX4L30=",
         "owner": "fudoniten",
         "repo": "fudo-nix-helpers",
-        "rev": "89ad3f7ca2cff121475794bde7c6e29e0e5169d1",
+        "rev": "24a74a2c3772eed08a670e9e02a9585dd6deb508",
         "type": "github"
       },
       "original": {
@@ -746,16 +747,17 @@
         "utils": "utils_8"
       },
       "locked": {
-        "lastModified": 1770059105,
-        "narHash": "sha256-r+6Om+nPp/Y4Q7C+zkEG/XBnK/mqISiqkSGxK8yxvF8=",
+        "lastModified": 1773087794,
+        "narHash": "sha256-wGWoIUYdiyqB+u3wBCc7X62ziQJL+HE5U+LYfQZDtSs=",
         "owner": "fudoniten",
         "repo": "pinger",
-        "rev": "c01ab64662dcd2a046c1bfbaf13802ea944a9811",
+        "rev": "f013ad42e167067061777c66004b28740d6baa66",
         "type": "github"
       },
       "original": {
         "owner": "fudoniten",
         "repo": "pinger",
+        "rev": "f013ad42e167067061777c66004b28740d6baa66",
         "type": "github"
       }
     },
