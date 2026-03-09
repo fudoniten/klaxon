@@ -9,11 +9,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     fudo-clojure = {
-      url = "github:fudoniten/fudo-clojure";
+      url =
+        "github:fudoniten/fudo-clojure:a32e527a6db2962f29bbbe33c1c3475c13198a08";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     pinger = {
-      url = "github:fudoniten/pinger";
+      url = "github:fudoniten/pinger:c01ab64662dcd2a046c1bfbaf13802ea944a9811";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -62,7 +63,10 @@
         devShells = rec {
           default = updateDeps;
           updateDeps = pkgs.mkShell {
-            buildInputs = [ (helpers.updateClojureDeps { deps = cljLibs; }) ];
+            buildInputs = [
+              (helpers.updateClojureDeps { deps = cljLibs; })
+              helpers.update-git-deps
+            ];
           };
           klaxonServer = pkgs.mkShell {
             buildInputs = with self.packages."${system}"; [ klaxon ];
