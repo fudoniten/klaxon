@@ -109,9 +109,19 @@
   :ret  ::req/request)
 (defn authenticate-request!
   [key req]
-  (let [method (req/get-http-method req)
-        hostname (req/get-host req)
-        path (req/get-base-path req)
+  (let [method (req/method req)
+        hostname (req/host req)
+        path (req/request-path req)
         jwt (generate-jwt! key method hostname path)]
-    (req/with-header req "Authorization"
-      (format "Bearer %s" jwt))))
+    (req/with-headers req {"Authorization" (format "Bearer %s" jwt)})))
+
+
+
+
+
+
+
+
+
+
+
