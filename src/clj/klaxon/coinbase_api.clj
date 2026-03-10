@@ -24,8 +24,8 @@
 (def base-get-request
   (-> (req/base-request)
       (req/as-get)
-      (req/with-header :content-type "application/json")
-      (req/with-header :accept "application/json")))
+      (req/with-headers {:content-type "application/json"
+                         :accept "application/json"})))
 
 (defn filter-keys [m f]
   (into {} (filter (comp f val) m)))
