@@ -24,9 +24,9 @@
     {
       "lib": "org.fudo/pinger",
       "url": "https://github.com/fudoniten/pinger.git",
-      "rev": "c01ab64662dcd2a046c1bfbaf13802ea944a9811",
+      "rev": "ce0bca72f1658b7478d36e09ef8dbaa74de03056",
       "git-dir": "https/github.com/fudoniten/pinger",
-      "hash": "sha256-r+6Om+nPp/Y4Q7C+zkEG/XBnK/mqISiqkSGxK8yxvF8="
+      "hash": "sha256-7GbfzHr+bY+U99mtzugCw/KIYSn+FmZl8dEceff7oFQ="
     }
   ],
   "mvn-deps": [

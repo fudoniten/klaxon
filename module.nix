@@ -28,6 +28,12 @@ in {
         type = str;
         description = "The ntfy channel to which notifications will be sent. This should be a valid channel name on the ntfy server.";
       };
+
+      tokenFile = mkOption {
+        type = nullOr str;
+        description = "File holding an ntfy access token (tk_...), for a server that doesn't allow anonymous publishing. Read at start-up, never copied to the store.";
+        default = null;
+      };
     };
   };
 
@@ -42,14 +48,16 @@ in {
           DynamicUser = true;
           Restart = "on-failure";
           RestartSec = "120s";
-          LoadCredential = [ "key.json:${cfg.keyFile}" ];
+          LoadCredential = [ "key.json:${cfg.keyFile}" ]
+            ++ optional (cfg.ntfy.tokenFile != null) "ntfy-token:${cfg.ntfy.tokenFile}";
           ExecStart = pkgs.writeShellScript "klaxon-launch.sh"
             (concatStringsSep " " ([
               "klaxon"
               "--ntfy-server=${cfg.ntfy.server}"
               "--ntfy-topic=${cfg.ntfy.topic}"
               "--key-file=$CREDENTIALS_DIRECTORY/key.json"
-            ]));
+            ] ++ optional (cfg.ntfy.tokenFile != null)
+              "--ntfy-token-file=$CREDENTIALS_DIRECTORY/ntfy-token"));
         };
         unitConfig.ConditionPathExists = [ cfg.keyFile ];
       };

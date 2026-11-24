@@ -29,7 +29,17 @@
 
    ["-n" "--ntfy-server SERVER" "ntfy.sh server."
     :default (config/get-config :ntfy-server)]
-   ["-t" "--ntfy-topic TOPIC" (str "ntfy.sh topic to which notifications will be sent. Default: " (config/get-config :ntfy-topic))]])
+   ["-t" "--ntfy-topic TOPIC" (str "ntfy.sh topic to which notifications will be sent. Default: " (config/get-config :ntfy-topic))]
+   ["-T" "--ntfy-token-file FILE" "File holding an ntfy access token (tk_...), for servers without anonymous publishing (e.g. ntfy.fudo.org)."]])
+
+(defn- read-token
+  "The token in `file`, trimmed, or nil without a file."
+  [file]
+  (when file
+    (let [token (str/trim (slurp file))]
+      (when (str/blank? token)
+        (throw (ex-info (format "ntfy token file %s is empty" file) {:file file})))
+      token)))
 
 #_(s/def ::cli-options (s/keys :req-un [::key-file ::ntfy-topic ::poll-seconds]))
 
@@ -67,6 +77,7 @@
       (let [{:keys [key-file
                     ntfy-server
                     ntfy-topic
+                    ntfy-token-file
                     poll-seconds
                     verbose]} options
             key-data (jwt/load-key-file key-file)]
@@ -77,7 +88,8 @@
               shutdown-chan (chan)
               orders        (order-chan client :delay poll-seconds :start-time start)
               notifications (monitor-orders orders)
-              pinger        (pinger/open-channel ntfy-server ntfy-topic)
+              pinger        (pinger/open-channel ntfy-server ntfy-topic
+                                                  (read-token ntfy-token-file))
               {monitor-stop :stop errs :err} (monitor-and-alert pinger notifications)]
           (.addShutdownHook (Runtime/getRuntime)
                             (Thread. (fn [] (>!! shutdown-chan true))))
